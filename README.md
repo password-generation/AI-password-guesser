@@ -56,12 +56,21 @@ ale15
 Extracted tokens: `Marek`, `Euzebia`, `Filomena`, `Rex`, `Max`, `maj`, `1995`, `10`
 
 The correspondence:
-- Tomek: Hey Marek! How was your weekend?
-- Marek: Hi there! It was great, thanks for asking. I spent some quality time with Euzebia and Filomena. We took Rex, our adorable dog, to the park, and he had a blast chasing his favorite tennis ball. How about you?
-- Tomek: That sounds lovely! My weekend was good too. By the way, Marek, could you remind me of your birthdate? I want to make sure I get you the right gift.
-- Marek: Sure, it’s May 10, 1995. Thanks in advance! By the way, how’s your dog doing? I remember you mentioned you adopted a new puppy.
-- Tomek: Ah, thanks for reminding me. His name is Max, and he’s growing fast. I hope Rex and Max can have a playdate soon!
-- Marek: Absolutely! Rex would love that. By the way, did Euzebia tell you about the upcoming family gathering next week? We’re planning a small get-together for Filomena’s birthday.
-- Tomek: No, she didn’t mention it yet. But that’s wonderful! I’ll make sure to mark it on my calendar. Please let me know if you need any help with the preparations.
-- Marek: Thanks! Your support is always appreciated. We’re excited to celebrate Filomena turning five. Time flies!
-- Tomek: Indeed, it does. I’m looking forward to seeing everyone. Let’s make it a memorable day for Filomena!
+
+`Tomek`: Hey Marek! How was your weekend?
+
+`Marek`: Hi there! It was great, thanks for asking. I spent some quality time with Euzebia and Filomena. We took Rex, our adorable dog, to the park, and he had a blast chasing his favorite tennis ball. How about you?
+
+`Tomek`: That sounds lovely! My weekend was good too. By the way, Marek, could you remind me of your birthdate? I want to make sure I get you the right gift.
+
+`Marek`: Sure, it’s May 10, 1995. Thanks in advance! By the way, how’s your dog doing? I remember you mentioned you adopted a new puppy.
+
+`Tomek`: Ah, thanks for reminding me. His name is Max, and he’s growing fast. I hope Rex and Max can have a playdate soon!
+
+`Marek`: Absolutely! Rex would love that. By the way, did Euzebia tell you about the upcoming family gathering next week? We’re planning a small get-together for Filomena’s birthday.
+
+`Tomek`: No, she didn’t mention it yet. But that’s wonderful! I’ll make sure to mark it on my calendar. Please let me know if you need any help with the preparations.
+
+`Marek`: Thanks! Your support is always appreciated. We’re excited to celebrate Filomena turning five. Time flies!
+
+`Tomek`: Indeed, it does. I’m looking forward to seeing everyone. Let’s make it a memorable day for Filomena!
