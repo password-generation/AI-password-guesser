@@ -39,7 +39,7 @@ The text file describing the password-generation rules contains exactly one rule
 
 The specification of the rule definitions’ syntax is a part of the tasks for the first sprint. 
 
-The effect of applying rules for example tuple of tokens “`aleksandra`” and “`1995`”
+The effect of applying rules for example tuple of tokens `aleksandra` and `1995`
 
 ```bash
 ALEKSANDRA
@@ -56,12 +56,12 @@ ale15
 Extracted tokens: `Marek`, `Euzebia`, `Filomena`, `Rex`, `Max`, `maj`, `1995`, `10`
 
 The correspondence:
-
-- Tomek: Hej Marek! Jak spędziłeś weekend?
-- Marek: Cześć! Było wspaniale, dzięki, że pytasz. Spędziłem trochę czasu z Euzebią i Filomeną. Zabraliśmy Rexa, naszego uroczego psa, do parku i świetnie się bawił, goniąc swoją ulubioną piłeczkę tenisową. Jak o tobie?
-- Tomek: To brzmi wspaniale! Mój weekend też był udany. A propos, Marek, czy mógłbyś mi przypomnieć datę swoich urodzin? Chcę mieć pewność, że kupię ci odpowiedni prezent.
-- Marek: Jasne, jest 10 maja 1995. Z góry dziękuję! Swoją drogą, jak się ma twój pies? Pamiętam, jak wspomniałeś, że adoptowałeś nowego szczeniaka.
-- Tomek: Ach, dzięki za przypomnienie. Ma na imię Max i szybko rośnie.
-- Marek: Oczywiście! Przy okazji, czy Euzebia mówiła ci o zbliżającym się spotkaniu rodzinnym w przyszłym tygodniu? Planujemy małe spotkanie z okazji urodzin Filomeny.
-- Tomek: Nie, jeszcze o tym nie wspomniała. Na pewno zaznaczę to w kalendarzu. Daj mi znać, jeśli potrzebujesz pomocy w przygotowaniach.
-- Marek: Dzięki, Marek! Twoje wsparcie jest zawsze mile widziane. Z radością świętujemy piąte urodziny Filomeny.
+- Tomek: Hey Marek! How was your weekend?
+- Marek: Hi there! It was great, thanks for asking. I spent some quality time with Euzebia and Filomena. We took Rex, our adorable dog, to the park, and he had a blast chasing his favorite tennis ball. How about you?
+- Tomek: That sounds lovely! My weekend was good too. By the way, Marek, could you remind me of your birthdate? I want to make sure I get you the right gift.
+- Marek: Sure, it’s May 10, 1995. Thanks in advance! By the way, how’s your dog doing? I remember you mentioned you adopted a new puppy.
+- Tomek: Ah, thanks for reminding me. His name is Max, and he’s growing fast. I hope Rex and Max can have a playdate soon!
+- Marek: Absolutely! Rex would love that. By the way, did Euzebia tell you about the upcoming family gathering next week? We’re planning a small get-together for Filomena’s birthday.
+- Tomek: No, she didn’t mention it yet. But that’s wonderful! I’ll make sure to mark it on my calendar. Please let me know if you need any help with the preparations.
+- Marek: Thanks! Your support is always appreciated. We’re excited to celebrate Filomena turning five. Time flies!
+- Tomek: Indeed, it does. I’m looking forward to seeing everyone. Let’s make it a memorable day for Filomena!
