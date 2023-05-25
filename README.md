@@ -1,6 +1,13 @@
-# README
-
 ## Table of contents
+
+- [Table of contents](#table-of-contents)
+- [The goals for June 2023](#the-goals-for-june-2023)
+- [Installation and Requirements](#installation-and-requirements)
+- [How to use the generator](#how-to-use-the-generator)
+  - [Options](#options)
+  - [Evidence](#evidence)
+- [The password-generation rules](#the-password-generation-rules)
+- [Information obtained from the evidence file(s)](#information-obtained-from-the-evidence-files)
 
 ## The goals for June 2023
 
