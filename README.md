@@ -23,7 +23,7 @@
 
 To run the program type the following command in the terminal
 
-`$ python password_guessing.py [options] [evidence]`
+`$ python3 password_guessing.py [options] [evidence]`
 
 ### Options
 
@@ -31,11 +31,11 @@ To run the program type the following command in the terminal
 
 ### Evidence
 
-A single file or a directory containing the evidence in `.txt` format.
+Files or a directory containing the evidence in `.txt` format.
 
 ## The password-generation rules
 
-The text file describing the password-generation rules contains exactly one rule per line. 
+A text file describing the password-generation rules contains exactly one rule per line. 
 
 The specification of the rule definitions’ syntax is a part of the tasks for the first sprint. 
 
