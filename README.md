@@ -27,7 +27,8 @@ To run the program type the following command in the terminal
 
 ### Options
 
-- [ ]  TODO
+* `-n [n_passwords]` - Number of passwords to generate
+* `-o [output_file]` - Text file with generated passwords 
 
 ### Evidence
 
