@@ -32,7 +32,7 @@ To run the program type the following command in the terminal
 
 ### Evidence
 
-Files or a directory containing the evidence in `.txt` format.
+Files or a directory containing the evidence in `.txt`, `.pdf`, `.odt`, `.docx` format.
 
 ## The password-generation rules
 
