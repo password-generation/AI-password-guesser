@@ -85,3 +85,30 @@ def interlace(s1: str, s2: str, idxs: list[int]):
         i = j
     s3 += s1[i:]
     return s3
+
+def nothing(s: str):
+    return s
+
+def uppercase(s: str):
+    return s.upper()
+
+def invert_capitalize(s: str):
+    return s.capitalize().swapcase()
+
+def toggle_at(s: str, i: int):
+    return s[:i] + s[i].swapcase() + s[i+1:]
+
+def reflect(s: str):
+    return s + s[::-1]
+
+def rotate_right(s: str, i: int = 1):
+    return  s[len(s) - i:] + s[: len(s) - i]
+
+def truncate_right(s: str, i: int = 1):
+    return s[:len(s) - i]
+
+def extract_range(s: str, i: int, n: int):
+    pass
+
+s = "p@ssW0rd"
+print(truncate_right(s, 1))
