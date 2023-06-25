@@ -1,13 +1,29 @@
+def nothing(s: str):
+    return s
+
+
 def lowercase(s: str):
     return s.lower()
+
+
+def uppercase(s: str):
+    return s.upper()
 
 
 def capitalize(s: str):
     return s.capitalize()
 
 
+def invert_capitalize(s: str):
+    return s.capitalize().swapcase()
+
+
 def toggle_case(s: str):
     return "".join(c.upper() if c.islower() else c.lower() for c in s)
+
+
+def toggle_at(s: str, i: int):
+    return s[:i] + s[i].swapcase() + s[i + 1 :]
 
 
 def reverse(s: str):
@@ -18,24 +34,40 @@ def duplicate(s: str, n: int = 1):
     return s * (n + 1)
 
 
+def reflect(s: str):
+    return s + s[::-1]
+
+
 def rotate_left(s: str, i: int = 1):
     return s[i:] + s[:i]
 
 
-def join(s1: str, s2: str):
-    return s1 + s2
+def rotate_right(s: str, i: int = 1):
+    return s[len(s) - i :] + s[: len(s) - i]
 
 
 def truncate_left(s: str, i: int = 1):
     return s[i:]
 
 
+def truncate_right(s: str, i: int = 1):
+    return s[: len(s) - i]
+
+
 def delete_at(s: str, i: int):
     return s[:i] + s[i + 1 :]
 
 
+def extract_range(s: str, i: int, n: int):
+    return s[i : i + n]
+
+
 def omit_range(s: str, i: int, n: int):
     return s[:i] + s[i + n :]
+
+
+def insert_at(s: str, i: int, c: str):
+    return s[:i] + c + s[i:]
 
 
 def overwrite_at(s: str, i: int, c: str):
@@ -44,6 +76,18 @@ def overwrite_at(s: str, i: int, c: str):
 
 def replace(s: str, old: str, new: str):
     return s.replace(old, new)
+
+
+def purge(s: str, c: str):
+    return s.replace(c, "")
+
+
+def duplicate_first(s: str, i: int, n: int = 2):
+    return (s[:i] * n) + s[i:]
+
+
+def duplicate_last(s: str, i: int, n: int = 2):
+    return s[:-i] + (s[-i:] * n)
 
 
 def duplicate_at(s: str, i: int, n: int):
@@ -68,12 +112,8 @@ def decrement_char_ascii_at(s: str, i: int, n: int):
     return s[:i] + chr(ord(s[i]) - n) + s[i + 1 :]
 
 
-def duplicate_first(s: str, i: int, n: int = 2):
-    return (s[:i] * n) + s[i:]
-
-
-def duplicate_last(s: str, i: int, n: int = 2):
-    return s[:-i] + (s[-i:] * n)
+def join(s1: str, s2: str):
+    return s1 + s2
 
 
 def interlace(s1: str, s2: str, idxs: list[int]):
@@ -85,43 +125,3 @@ def interlace(s1: str, s2: str, idxs: list[int]):
         i = j
     s3 += s1[i:]
     return s3
-
-
-def nothing(s: str):
-    return s
-
-
-def uppercase(s: str):
-    return s.upper()
-
-
-def invert_capitalize(s: str):
-    return s.capitalize().swapcase()
-
-
-def toggle_at(s: str, i: int):
-    return s[:i] + s[i].swapcase() + s[i + 1 :]
-
-
-def reflect(s: str):
-    return s + s[::-1]
-
-
-def rotate_right(s: str, i: int = 1):
-    return s[len(s) - i :] + s[: len(s) - i]
-
-
-def truncate_right(s: str, i: int = 1):
-    return s[: len(s) - i]
-
-
-def extract_range(s: str, i: int, n: int):
-    return s[i : i + n]
-
-
-def insert_at(s: str, i: int, c: str):
-    return s[:i] + c + s[i:]
-
-
-def purge(s: str, c: str):
-    return s.replace(c, "")
