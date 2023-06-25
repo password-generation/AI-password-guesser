@@ -82,20 +82,28 @@ def purge(s: str, c: str):
     return s.replace(c, "")
 
 
-def duplicate_first(s: str, i: int, n: int = 2):
-    return (s[:i] * n) + s[i:]
+def duplicate_first(s: str, n: int = 1, i: int = 1):
+    return s[:i] * (n + 1) + s[i:]
 
 
-def duplicate_last(s: str, i: int, n: int = 2):
-    return s[:-i] + (s[-i:] * n)
+def duplicate_last(s: str, n: int = 1, i: int = 1):
+    return s[:-i] + s[-i:] * (n + 1)
 
 
-def duplicate_at(s: str, i: int, n: int):
-    return s[:i] + (s[i] * n) + s[i + 1 :]
+def duplicate_at(s: str, i: int, n: int = 1):
+    return s[:i] + s[i] * (n + 1) + s[i + 1 :]
 
 
 def duplicate_all(s: str, n: int = 1):
     return "".join(c * (n + 1) for c in s)
+
+
+def swap_front(s: str):
+    return s[1] + s[0] + s[2:]
+
+
+def swap_back(s: str):
+    return s[:-2] + s[-1] + s[-2]
 
 
 def swap_chars_at(s: str, i: int, j: int):
@@ -104,11 +112,11 @@ def swap_chars_at(s: str, i: int, j: int):
     return s[:i] + s[j] + s[i + 1 : j] + s[i] + s[j + 1 :]
 
 
-def increment_char_ascii_at(s: str, i: int, n: int):
+def increment_char_ascii_at(s: str, i: int, n: int = 1):
     return s[:i] + chr(ord(s[i]) + n) + s[i + 1 :]
 
 
-def decrement_char_ascii_at(s: str, i: int, n: int):
+def decrement_char_ascii_at(s: str, i: int, n: int = 1):
     return s[:i] + chr(ord(s[i]) - n) + s[i + 1 :]
 
 
@@ -116,8 +124,9 @@ def join(s1: str, s2: str):
     return s1 + s2
 
 
-def interlace(s1: str, s2: str, idxs: list[int]):
-    assert len(s2) == len(idxs)
+def interlace(s1: str, s2: str, idxs: list[int] | None = None):
+    if idxs is None:
+        idxs = range(len(s2))
     s3 = ""
     i = 0
     for j, c in zip(idxs, s2):
