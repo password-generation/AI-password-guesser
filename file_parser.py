@@ -1,5 +1,4 @@
 from collections import Counter
-from typing import List, Tuple
 from enum import Enum
 import pandas as pd
 import morfeusz2
@@ -44,13 +43,13 @@ def clear_text(text: str) -> str:
     return re.sub("[^A-Za-z0-9ĘęÓóĄąŚśŁłŻżŹźĆćŃń ]+", " ", text)
 
 
-def recognize_data_strings(text: str, language: Language) -> list:
+def recognize_data_strings(text: str, language: Language) -> list[str]:
     """
     Returns list of strings containing data recognized as important
     such as dates, organization names, people's names and surnames and others.
     """
     # TODO We might want to return not only the phrases but the categories as well
-    important_phrases = []
+    important_phrases: list[str] = []
     if language == Language.ENGLISH:
         model = "en_core_web_lg"
     elif language == Language.POLISH:
@@ -62,7 +61,7 @@ def recognize_data_strings(text: str, language: Language) -> list:
     return important_phrases
 
 
-def lemmatize(words: List[str], language: Language) -> List[str]:
+def lemmatize(words: list[str], language: Language) -> list[str]:
     """
     Creates a list of lemmatized words based on provided list of strings (words).
     """
@@ -82,19 +81,21 @@ def lemmatize(words: List[str], language: Language) -> List[str]:
     return lemmatized_words
 
 
-def count_and_sort_words(words: List[str]) -> List[Tuple[int, str]]:
+def count_and_sort_words(words: list[str]) -> list[tuple[str, int]]:
     """
     Returns list of touples (word, occurances_count) sorted by occurances in descending order.
     """
     word_count_dict = dict(Counter(words).items())
     sorted_word_count = [
         (word, word_count_dict[word])
-        for word in sorted(word_count_dict, key=word_count_dict.get, reverse=True)
+        for word in sorted(
+            word_count_dict, key=lambda x: word_count_dict[x], reverse=True
+        )
     ]
     return sorted_word_count
 
 
-def save_sorted_words(counted_words: List[Tuple[str, int]], file_name: str) -> None:
+def save_sorted_words(counted_words: list[tuple[str, int]], file_name: str) -> None:
     """
     Saves counted words in csv format into ./output/file_name.csv
     """
@@ -110,7 +111,7 @@ def save_sorted_words(counted_words: List[Tuple[str, int]], file_name: str) -> N
     df.to_csv(f"./output/{file_name}.csv")
 
 
-def save_important_phrases(important_phrases: List[str], file_name: str) -> None:
+def save_important_phrases(important_phrases: list[str], file_name: str) -> None:
     """
     Saves important phrases in csv format into ./output/file_name.csv
     """
