@@ -15,7 +15,7 @@ def reverse(s: str):
 
 
 def duplicate(s: str, n: int = 1):
-    return s * n
+    return s * (n + 1)
 
 
 def rotate_left(s: str, i: int = 1):
@@ -50,8 +50,8 @@ def duplicate_at(s: str, i: int, n: int):
     return s[:i] + (s[i] * n) + s[i + 1 :]
 
 
-def duplicate_all(s: str, n: int):
-    return "".join(c * n for c in s)
+def duplicate_all(s: str, n: int = 1):
+    return "".join(c * (n + 1) for c in s)
 
 
 def swap_chars_at(s: str, i: int, j: int):

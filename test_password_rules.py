@@ -64,7 +64,7 @@ def test_lowercase():
 
 def test_capitalize():
     s = "ala ma KotA"
-    assert capitalize(s) == "Ala Ma Kota"
+    assert capitalize(s) == "Ala ma kota"
 
 
 def test_toogle_case():
@@ -80,7 +80,7 @@ def test_reverse():
 def test_duplicate():
     s = "ala ma KotA"
     assert duplicate(s) == "ala ma KotAala ma KotA"
-    assert duplicate(s, 3) == "ala ma KotAala ma KotAala ma KotA"
+    assert duplicate(s, 2) == "ala ma KotAala ma KotAala ma KotA"
 
 
 def test_rotate_left():
@@ -105,7 +105,7 @@ def test_truncate_left():
 
 def test_delete_at():
     s = "ala ma KotA"
-    assert delete_at(s, 3) == "alamaKotA"
+    assert delete_at(s, 3) == "alama KotA"
 
 
 def test_omit_range():
@@ -131,7 +131,8 @@ def test_duplicate_at():
 
 def test_duplicate_all():
     s = "ala ma KotA"
-    assert duplicate_all(s, 4) == "ala ma KotAala ma KotAala ma KotAala ma KotA"
+    assert duplicate_all(s) == "aallaa  mmaa  KKoottAA"
+    assert duplicate_all(s, 2) == "aaalllaaa   mmmaaa   KKKoootttAAA"
 
 
 def test_swap_chars_at():
