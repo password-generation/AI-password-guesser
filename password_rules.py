@@ -126,7 +126,7 @@ def join(s1: str, s2: str):
 
 def interlace(s1: str, s2: str, idxs: list[int] | None = None):
     if idxs is None:
-        idxs = range(len(s2))
+        idxs = list(range(len(s2)))
     s3 = ""
     i = 0
     for j, c in zip(idxs, s2):
