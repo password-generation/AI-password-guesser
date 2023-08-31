@@ -10,7 +10,7 @@ def main(
     print(f"Output file: {output_filename}")
     print(f"Evidence files: {evidence_files}")
     print(f"Language: {language}")
-    # Gatering tokens from the evidence files
+    # Gathering tokens from the evidence files
     parser_language = Language.ENGLISH if language == "EN" else Language.POLISH
     important_phrases = []
     lemmatized_words = []
