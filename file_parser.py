@@ -1,13 +1,19 @@
 from collections import Counter
 from enum import Enum
 import pandas as pd
-import morfeusz2
 import textract
 import spacy
 import nltk
 import sys
 import re
 import os
+
+MORFEUSZ_AVAILABLE = True
+try:
+    import morfeusz2
+except ImportError:
+    print("morfeusz can't be imported - polish lang is unavailable")
+    MORFEUSZ_AVAILABLE = False
 
 
 # BEFORE YOU RUN THIS CODE:
@@ -30,6 +36,9 @@ class Phrase:
 
     def __str__(self):
         return self.text + " : " + self.label
+
+    def __repr__(self):
+        return str(self)
 
 
 def extract_text_from_file(file_path: str) -> str:
@@ -78,7 +87,7 @@ def lemmatize(words: list[str], language: Language) -> list[str]:
         lemmatizer = nltk.WordNetLemmatizer()
         lemmatized_words = [lemmatizer.lemmatize(word) for word in words]
         return lemmatized_words
-    elif language == Language.POLISH:
+    elif language == Language.POLISH and MORFEUSZ_AVAILABLE:
         morf = morfeusz2.Morfeusz()
         last_i = -1
         lemmatized_words = []

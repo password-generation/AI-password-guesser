@@ -24,14 +24,15 @@ def main(
         # Important data recognition
         important_phrases += recognize_data_strings(text, parser_language)
     sorted_word_count = count_and_sort_words(lemmatized_words)
+    print(important_phrases)
     # TODO Use sorted word count and important phrases to generate passwords
 
 
 def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="password_guessing.py",
-        description="This program generates a dictionary of passwords using the provided evidence. \
-                     Currently supported evidence formats are: .txt, .pdf, .docx, .odt",
+        description="This program generates a dictionary of passwords using the provided evidence."
+                     "Currently supported evidence formats are: .txt, .pdf, .docx, .odt",
     )
     parser.add_argument(
         "-n",
