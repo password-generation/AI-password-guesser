@@ -1,13 +1,19 @@
 from collections import Counter
 from enum import Enum
 import pandas as pd
-import morfeusz2
 import textract
 import spacy
 import nltk
 import sys
 import re
 import os
+
+MORFEUSZ_AVAILABLE = True
+try:
+    import morfeusz2
+except ImportError:
+    print("morfeusz can't be imported - polish lang is unavailable")
+    MORFEUSZ_AVAILABLE = False
 
 
 # BEFORE YOU RUN THIS CODE:
@@ -20,6 +26,19 @@ import os
 class Language(Enum):
     ENGLISH = 1
     POLISH = 2
+
+
+class Phrase:
+    def __init__(self, text: str, label: str):
+        self.text = text
+        self.label = label
+        # TODO: Przyda się dodać ujednolicanie etykiet (angielski i polski klasyfikator mają różne nazwy na te same etykiety)
+
+    def __str__(self):
+        return self.text + " : " + self.label
+
+    def __repr__(self):
+        return str(self)
 
 
 def extract_text_from_file(file_path: str) -> str:
@@ -43,12 +62,11 @@ def clear_text(text: str) -> str:
     return re.sub("[^A-Za-z0-9ĘęÓóĄąŚśŁłŻżŹźĆćŃń ]+", " ", text)
 
 
-def recognize_data_strings(text: str, language: Language) -> list[str]:
+def recognize_data_strings(text: str, language: Language) -> list[Phrase]:
     """
     Returns list of strings containing data recognized as important
     such as dates, organization names, people's names and surnames and others.
     """
-    # TODO We might want to return not only the phrases but the categories as well
     important_phrases: list[str] = []
     if language == Language.ENGLISH:
         model = "en_core_web_lg"
@@ -57,7 +75,7 @@ def recognize_data_strings(text: str, language: Language) -> list[str]:
     nlp = spacy.load(model)
     important_text = nlp(text)
     for ent in important_text.ents:
-        important_phrases.append(ent.text)
+        important_phrases.append(Phrase(ent.text, ent.label_))
     return important_phrases
 
 
@@ -69,7 +87,7 @@ def lemmatize(words: list[str], language: Language) -> list[str]:
         lemmatizer = nltk.WordNetLemmatizer()
         lemmatized_words = [lemmatizer.lemmatize(word) for word in words]
         return lemmatized_words
-    elif language == Language.POLISH:
+    elif language == Language.POLISH and MORFEUSZ_AVAILABLE:
         morf = morfeusz2.Morfeusz()
         last_i = -1
         lemmatized_words = []
@@ -95,23 +113,23 @@ def count_and_sort_words(words: list[str]) -> list[tuple[str, int]]:
     return sorted_word_count
 
 
-def save_sorted_words(counted_words: list[tuple[str, int]], file_name: str) -> None:
+def save_sorted_words(sorted_words: list[tuple[str, int]], file_name: str) -> None:
     """
-    Saves counted words in csv format into ./output/file_name.csv
+    Saves sorted words in csv format into ./output/file_name.csv
     """
     # Creating output folder if it does not exist
     if not os.path.exists("./output"):
         os.makedirs("./output")
     # Saving the tokens and their count
     data = {
-        "word": [word for (word, _) in counted_words],
-        "count": [count for (_, count) in counted_words],
+        "word": [word for (word, _) in sorted_words],
+        "count": [count for (_, count) in sorted_words],
     }
     df = pd.DataFrame(data)
     df.to_csv(f"./output/{file_name}.csv")
 
 
-def save_important_phrases(important_phrases: list[str], file_name: str) -> None:
+def save_important_phrases(important_phrases: list[Phrase], file_name: str) -> None:
     """
     Saves important phrases in csv format into ./output/file_name.csv
     """
@@ -119,7 +137,10 @@ def save_important_phrases(important_phrases: list[str], file_name: str) -> None
     if not os.path.exists("./output"):
         os.makedirs("./output")
     # Saving extracted important phrases
-    data = {"phrases": important_phrases}
+    data = {
+        "phrases": [phrase.text for phrase in important_phrases],
+        "labels": [phrase.label for phrase in important_phrases],
+    }
     df = pd.DataFrame(data)
     df.to_csv(f"./output/{file_name}.csv")
 
