@@ -1,0 +1,11 @@
+unary_rules:
+- capitalize
+- toggle_case
+
+binary_rules:
+- join
+
+mangling_schedule:
+- unary
+- binary
+- unary

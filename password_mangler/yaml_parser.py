@@ -1,7 +1,5 @@
 import yaml
-import password_mangler.password_rules
-
-FILENAME = "example.yaml"
+import password_rules
 
 
 def parse_yaml(filename):
@@ -15,7 +13,7 @@ def parse_yaml(filename):
     return unary, binary
 
 
-def get_funcs(names, module=password_mangler.password_rules):
+def get_funcs(names, module=password_rules):
     funcs = []
     for name in names:
         func = getattr(module, name)
@@ -24,7 +22,7 @@ def get_funcs(names, module=password_mangler.password_rules):
 
 
 if __name__ == "__main__":
-    unary, binary = parse_yaml(FILENAME)
+    unary, binary = parse_yaml("config.yaml")
     print(unary, binary)
 
     print("--- unary ---")

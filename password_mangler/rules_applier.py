@@ -1,6 +1,6 @@
 from typing import Callable
 from enum import Enum
-from .password_rules import *
+from password_rules import *
 
 
 UnStrRule = Callable[[str], str]

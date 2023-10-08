@@ -40,6 +40,13 @@ class Phrase:
     def __repr__(self):
         return str(self)
 
+    def __eq__(self, other):
+        #TODO wonder what if the same text but different labels?
+        return self.text == other.text
+
+    def __hash__(self):
+        return hash(self.text)
+
 
 def extract_text_from_file(file_path: str) -> str:
     """
