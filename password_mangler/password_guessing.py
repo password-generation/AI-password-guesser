@@ -1,5 +1,5 @@
 import argparse
-from file_parser import *
+from .file_parser import *
 
 
 def main(
