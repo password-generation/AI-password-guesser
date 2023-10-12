@@ -9,11 +9,12 @@ def guess_passwords(
     output_filename: str,
     language: str,
     evidence_files: list[str],
-    config_file: str
+    config_file: str,
+    wildcards_present: bool
 ) -> None:
     # Printing arguments
-    print(f"Generating {nr_of_passwords} passwords")
-    print(f"Output file: {output_filename}")
+    # print(f"Generating {nr_of_passwords} passwords")
+    # print(f"Output file: {output_filename}")
     print(f"Evidence files: {evidence_files}")
     print(f"Language: {language}")
     # Gathering tokens from the evidence files
@@ -23,7 +24,7 @@ def guess_passwords(
     phrases_filtered = list(filter(lambda p: p.label == 'PERSON' 
                                    or p.label == 'ORG',
                                    important_phrases))
-    
+
     phrases = set(phrases_filtered)
     # sorted_word_count = count_and_sort_words(important_phrases)
     # print(important_phrases)
@@ -31,32 +32,26 @@ def guess_passwords(
     print(phrases)
     phrases_text = list(map(lambda p: p.text, phrases))
 
-    rules = parse_yaml(config_file)
+    unary_rules, binary_rules, mangling_schedule = parse_yaml(config_file)
 
-    mangling_schedule = [ManglingEpochType.UNARY,
-                         ManglingEpochType.UNARY,
-                         ManglingEpochType.BINARY]
-
-    passwords = mangle_strings(*rules, phrases_text, mangling_schedule)
+    passwords = mangle_strings(unary_rules, binary_rules, mangling_schedule,
+                               phrases_text)
     print(passwords)
-
-    # print(sorted_word_count)
-    # TODO Use sorted word count and important phrases to generate passwords
 
 
 def read_evidence(evidence_files: list[str], language: str) -> list[Phrase]:
     parser_language = Language.ENGLISH if language == "EN" else Language.POLISH
     important_phrases = []
-    lemmatized_words = []
+    # lemmatized_words = []
     for file_name in evidence_files:
-        # Extracting and clearing text
         text = extract_text_from_file(file_name)
         text = clear_text(text)
-        words = text.split()
-        # Lemmatiziation and couting of words
-        lemmatized_words += lemmatize(words, parser_language)
-        # Important data recognition
         important_phrases += recognize_data_strings(text, parser_language)
+
+        # words = text.split()
+        # lemmatized_words += lemmatize(words, parser_language)
+    print(important_phrases)
+    # print(lemmatized_words)
     return important_phrases
 
 
@@ -112,6 +107,13 @@ def create_parser() -> argparse.ArgumentParser:
         default="config.yaml"
     )
     parser.add_argument(
+        "-w",
+        "--wildcard",
+        action="store_true",
+        default=False,
+        help="Flag for adding wildcards to passwords"
+    )
+    parser.add_argument(
         "filename",
         metavar="FILENAME",
         type=str,
@@ -129,5 +131,6 @@ def main():
         output_filename=args.output,
         language=args.language,
         evidence_files=args.filename,
-        config_file=args.config
+        config_file=args.config,
+        wildcards_present=args.wildcard
     )

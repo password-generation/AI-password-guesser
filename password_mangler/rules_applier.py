@@ -42,8 +42,8 @@ class ManglingEpochType(Enum):
 def mangle_strings(
     unary_rules: list[UnStrRule],
     binary_rules: list[BinStrRule],
-    strings: list[str],
     mangling_schedule: list[ManglingEpochType],
+    strings: list[str],
 ) -> list[str]:
     mangled_strings: list[str] = strings
     for mangling_epoch_type in mangling_schedule:
