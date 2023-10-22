@@ -59,7 +59,7 @@ def recognize_data_strings(text: str, language: Language) -> list[Token]:
     Returns list of strings containing data recognized as important
     such as dates, organization names, people's names and surnames and others.
     """
-    important_tokens: list[str] = []
+    tokens: list[str] = []
     if language == Language.ENGLISH:
         model = "en_core_web_lg"
         stop_words = set(stopwords.words('english'))
@@ -73,11 +73,11 @@ def recognize_data_strings(text: str, language: Language) -> list[Token]:
         try:
             label = parse_label(ent.label_)
             new_tokens = parse_text_to_tokens(ent.text, label, stop_words)
-            important_tokens.extend(new_tokens)
+            tokens.extend(new_tokens)
         except NotSupportedLabelType as e:
             pass
             # print(e)
-    return important_tokens
+    return tokens
 
 
 def merge_token_duplicates(tokens: list[Token]) -> list[Token]:
@@ -146,6 +146,23 @@ def filter_tokens_based_on_label(tokens: list[Token], label_types: list[LabelTyp
             if include:
                 new_tokens.append(token)
     return new_tokens
+
+
+def email_to_token(name: str, org: str, loc: str) -> list[Token]:
+    return [Token(name, [LabelType.PERSON, LabelType.EMAIL]),
+            Token(org, [LabelType.ORG, LabelType.EMAIL]),
+            Token(loc, [LabelType.LOC, LabelType.EMAIL])]
+
+
+def recognize_email_addresses(text: str) -> list[Token]:
+    email_rgx = r'(\b[A-Za-z0-9._%+-]+)@([A-Za-z0-9.-]+)\.([A-Z|a-z]{2,7}\b)'
+    pattern = re.compile(email_rgx)
+
+    tokens = []
+    for m in re.finditer(pattern, text):
+        tokens.extend(email_to_token(m.group(1), m.group(2), m.group(3)))
+
+    return tokens
 
 
 def count_and_sort_words(words: list[str]) -> list[tuple[str, int]]:

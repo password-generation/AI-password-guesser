@@ -4,7 +4,7 @@ from yaml_parser import parse_yaml
 from rules_applier import mangle_tokens
 from commons import Language
 from text_parser import *
-from results_saver import save_important_tokens
+from results_saver import save_tokens
 
 
 def guess_passwords(
@@ -49,19 +49,21 @@ def guess_passwords(
         filter_type = FilterType.AND
         tokens = filter_tokens_based_on_label(tokens, label_types, filter_type)
 
-    save_important_tokens(tokens, output_filename)
+    save_tokens(tokens, output_filename)
     for tok in sorted(tokens):
         print(tok)
 
 
 def read_evidence(evidence_files: list[str], language: Language) -> list[Token]:
-    important_tokens = []
+    tokens = []
     for file_name in evidence_files:
         text = extract_text_from_file(file_name)
-        text = clear_text(text)
-        important_tokens += recognize_data_strings(text, language)
+        tokens += recognize_email_addresses(text)
 
-    return important_tokens
+        text = clear_text(text)
+        tokens += recognize_data_strings(text, language)
+
+    return tokens
 
 
 def create_parser() -> argparse.ArgumentParser:

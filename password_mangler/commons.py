@@ -27,6 +27,7 @@ class LabelType(Enum):
     LOC = 3
     DATE = 4
     WILDCARD = 5
+    EMAIL = 6
 
     def __str__(self):
         return self.name

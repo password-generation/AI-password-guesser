@@ -3,7 +3,7 @@ import pandas as pd
 from commons import Token
 
 
-def save_important_tokens(important_tokens: list[Token], file_name: str) -> None:
+def save_tokens(tokens: list[Token], file_name: str) -> None:
     """
     Saves important tokens in csv format into ./output/file_name.csv
     """
@@ -12,8 +12,8 @@ def save_important_tokens(important_tokens: list[Token], file_name: str) -> None
         os.makedirs("./output")
     # Saving extracted important tokens
     data = {
-        "tokens": [token.text for token in sorted(important_tokens)],
-        "labels": [token.labels for token in important_tokens],
+        "tokens": [token.text for token in sorted(tokens)],
+        "labels": [token.labels for token in tokens],
     }
     df = pd.DataFrame(data)
     df.to_csv(f"./output/{file_name}")
@@ -62,7 +62,7 @@ if __name__ == "__main__":
 
     # Important data recognition
     # important_polish_tokens = recognize_data_strings(text, Language.POLISH)
-    # save_important_tokens(important_polish_tokens, "important_tokens_polish")
+    # save_tokens(important_polish_tokens, "tokens_polish")
 
     important_english_tokens = recognize_data_strings(text, Language.ENGLISH)
-    save_important_tokens(important_english_tokens, "important_tokens_english.csv")
+    save_tokens(important_english_tokens, "tokens_english.csv")
