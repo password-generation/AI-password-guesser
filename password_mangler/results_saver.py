@@ -12,11 +12,11 @@ def save_important_phrases(important_phrases: list[Phrase], file_name: str) -> N
         os.makedirs("./output")
     # Saving extracted important phrases
     data = {
-        "phrases": [phrase.text for phrase in important_phrases],
+        "phrases": [phrase.text for phrase in sorted(important_phrases)],
         "labels": [phrase.labels for phrase in important_phrases],
     }
     df = pd.DataFrame(data)
-    df.to_csv(f"./output/{file_name}.csv")
+    df.to_csv(f"./output/{file_name}")
 
 
 def save_sorted_words(sorted_words: list[tuple[str, int]], file_name: str) -> None:
@@ -32,7 +32,7 @@ def save_sorted_words(sorted_words: list[tuple[str, int]], file_name: str) -> No
         "count": [count for (_, count) in sorted_words],
     }
     df = pd.DataFrame(data)
-    df.to_csv(f"./output/{file_name}.csv")
+    df.to_csv(f"./output/{file_name}")
 
 
 if __name__ == "__main__":
@@ -58,11 +58,11 @@ if __name__ == "__main__":
     #     print("Can't lemmatize in polish because morfeusz is not available")
 
     sorted_word_count = count_and_sort_words(words)
-    save_sorted_words(sorted_word_count, "sorted_tokens_test")
+    save_sorted_words(sorted_word_count, "sorted_tokens_test.csv")
 
     # Important data recognition
     # important_polish_phrases = recognize_data_strings(text, Language.POLISH)
     # save_important_phrases(important_polish_phrases, "important_phrases_polish")
 
     important_english_phrases = recognize_data_strings(text, Language.ENGLISH)
-    save_important_phrases(important_english_phrases, "important_phrases_english")
+    save_important_phrases(important_english_phrases, "important_phrases_english.csv")

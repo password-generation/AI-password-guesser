@@ -4,6 +4,7 @@ from yaml_parser import parse_yaml
 from rules_applier import mangle_phrases
 from commons import Language
 from text_parser import *
+from results_saver import save_important_phrases
 
 
 def guess_passwords(
@@ -13,6 +14,7 @@ def guess_passwords(
     evidence_files: list[str],
     config_file: str,
     wildcards_present: bool,
+    max_length: int
 ) -> None:
     # Printing arguments
     # print(f"Generating {nr_of_passwords} passwords")
@@ -34,16 +36,22 @@ def guess_passwords(
 
     unary_rules, binary_rules, mangling_schedule = parse_yaml(config_file)
 
-    phrases = mangle_phrases(unary_rules, binary_rules, mangling_schedule, phrases)
+    phrases = mangle_phrases(unary_rules, binary_rules,
+                             mangling_schedule, phrases,
+                             wildcards_present, max_length)
 
     label_types = [LabelType.PERSON]
     filter_type = FilterType.AND
     phrases = filter_phrases_based_on_label(phrases, label_types, filter_type)
 
-    label_types = [l for l in LabelType if l != LabelType.PERSON]
-    filter_type = FilterType.NOT
-    phrases = filter_phrases_based_on_label(phrases, label_types, filter_type)
-    print(phrases)
+    if wildcards_present:
+        label_types.append(LabelType.WILDCARD)
+        filter_type = FilterType.AND
+        phrases = filter_phrases_based_on_label(phrases, label_types, filter_type)
+
+    save_important_phrases(phrases, output_filename)
+    for phr in sorted(phrases):
+        print(phr)
 
 
 def read_evidence(evidence_files: list[str], language: Language) -> list[Phrase]:
@@ -98,6 +106,13 @@ def create_parser() -> argparse.ArgumentParser:
         help="Flag for adding wildcards to passwords"
     )
     parser.add_argument(
+        "-m",
+        "--max",
+        type=int,
+        help="Max length of passwords",
+        default=8
+    )
+    parser.add_argument(
         "filename",
         metavar="FILENAME",
         type=str,
@@ -116,5 +131,6 @@ def main():
         arg_language=args.language,
         evidence_files=args.filename,
         config_file=args.config,
-        wildcards_present=args.wildcard
+        wildcards_present=args.wildcard,
+        max_length=args.max,
     )

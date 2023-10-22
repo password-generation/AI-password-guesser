@@ -1,6 +1,8 @@
 from enum import Enum
 
 
+WILDCARD_CHAR = '\1'
+
 class MorfeuszNotAvailable(Exception):
     ...
 
@@ -24,6 +26,7 @@ class LabelType(Enum):
     ORG = 2
     LOC = 3
     DATE = 4
+    WILDCARD = 5
 
     def __str__(self):
         return self.name
@@ -52,9 +55,20 @@ class Phrase:
         self.labels.extend(new_labels)
         self.labels = list(set(self.labels))
 
-    def __str__(self):
-        return f"'{self.text}' : {self.labels}"
+    def __str__(self) -> str:
+        if LabelType.WILDCARD in self.labels:
+            replaced_text = self.text.replace(WILDCARD_CHAR, '*')
+            return f"{replaced_text} : {self.labels}"
+        return f"{self.text} : {self.labels}"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self)
 
+    def __hash__(self) -> int:
+        return hash(self.text)
+
+    def __eq__(self, other) -> bool:
+        return self.text == other.text
+
+    def __lt__(self, other) -> bool:
+        return self.text < other.text

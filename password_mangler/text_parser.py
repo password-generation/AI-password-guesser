@@ -40,7 +40,7 @@ def parse_label(text: str) -> LabelType:
 def parse_text_to_phrases(text: str, label: LabelType, stopwords: set[str]) -> list[Phrase]:
     phrases = []
     text = text.lower()
-    tokens = re.split(r'\s{2,}', text)
+    tokens = re.split(r'\s{2,}', text)  # split if 2 or more whitespaces between
     if not label == LabelType.DATE:
         tokens = sum(map(lambda s: s.split(), tokens), [])
 
