@@ -1,5 +1,5 @@
 import yaml
-from rules_applier import ManglingEpochType
+from commons import ManglingEpochType
 import password_rules
 
 

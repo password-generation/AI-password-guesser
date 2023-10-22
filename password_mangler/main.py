@@ -1,75 +1,59 @@
 import argparse
-from file_parser import *
+from file_reader import *
 from yaml_parser import parse_yaml
-from rules_applier import mangle_strings, ManglingEpochType
+from rules_applier import mangle_phrases
+from commons import Language
+from text_parser import *
 
 
 def guess_passwords(
-    nr_of_passwords: int, 
+    nr_of_passwords: int,
     output_filename: str,
-    language: str,
+    arg_language: str,
     evidence_files: list[str],
     config_file: str,
-    wildcards_present: bool
+    wildcards_present: bool,
 ) -> None:
     # Printing arguments
     # print(f"Generating {nr_of_passwords} passwords")
     # print(f"Output file: {output_filename}")
     print(f"Evidence files: {evidence_files}")
-    print(f"Language: {language}")
+    print(f"Language: {arg_language}")
     # Gathering tokens from the evidence files
-    important_phrases = read_evidence(evidence_files, language)
-    important_phrases = normalize_important_phrases(important_phrases)
+    language = Language.ENGLISH if arg_language == "EN" else Language.POLISH
+    phrases = read_evidence(evidence_files, language)
+    phrases = lemmatize_phrases(phrases, language)
+    phrases = merge_phrase_duplicates(phrases)
 
-    phrases_filtered = list(filter(lambda p: p.label == 'PERSON' 
-                                   or p.label == 'ORG',
-                                   important_phrases))
-
-    phrases = set(phrases_filtered)
-    # sorted_word_count = count_and_sort_words(important_phrases)
-    # print(important_phrases)
-
+    label_types = [LabelType.DATE]
+    filter_type = FilterType.NOT
+    phrases = filter_phrases_based_on_label(phrases, label_types, filter_type)
     print(phrases)
-    phrases_text = list(map(lambda p: p.text, phrases))
+
+    # sorted_word_count = count_and_sort_words(phrases)
 
     unary_rules, binary_rules, mangling_schedule = parse_yaml(config_file)
 
-    passwords = mangle_strings(unary_rules, binary_rules, mangling_schedule,
-                               phrases_text)
-    print(passwords)
+    phrases = mangle_phrases(unary_rules, binary_rules, mangling_schedule, phrases)
+
+    label_types = [LabelType.PERSON]
+    filter_type = FilterType.AND
+    phrases = filter_phrases_based_on_label(phrases, label_types, filter_type)
+
+    label_types = [l for l in LabelType if l != LabelType.PERSON]
+    filter_type = FilterType.NOT
+    phrases = filter_phrases_based_on_label(phrases, label_types, filter_type)
+    print(phrases)
 
 
-def read_evidence(evidence_files: list[str], language: str) -> list[Phrase]:
-    parser_language = Language.ENGLISH if language == "EN" else Language.POLISH
+def read_evidence(evidence_files: list[str], language: Language) -> list[Phrase]:
     important_phrases = []
-    # lemmatized_words = []
     for file_name in evidence_files:
         text = extract_text_from_file(file_name)
         text = clear_text(text)
-        important_phrases += recognize_data_strings(text, parser_language)
+        important_phrases += recognize_data_strings(text, language)
 
-        # words = text.split()
-        # lemmatized_words += lemmatize(words, parser_language)
-    print(important_phrases)
-    # print(lemmatized_words)
     return important_phrases
-
-
-def normalize_important_phrases(phrases: list[Phrase]) -> list[Phrase]:
-    normalized_phrases = []
-
-    for phrase in phrases:
-        if phrase.label == 'DATE':
-            normalized_phrases.append(phrase)
-            continue
-
-        splited_phrase_text = phrase.text.split()
-        for subphrase_text in splited_phrase_text:
-            lowercase_text = subphrase_text.lower()
-            new_phrase = Phrase(lowercase_text, phrase.label)
-            normalized_phrases.append(new_phrase)
-
-    return normalized_phrases
 
 
 def create_parser() -> argparse.ArgumentParser:
@@ -129,7 +113,7 @@ def main():
     guess_passwords(
         nr_of_passwords=args.number,
         output_filename=args.output,
-        language=args.language,
+        arg_language=args.language,
         evidence_files=args.filename,
         config_file=args.config,
         wildcards_present=args.wildcard

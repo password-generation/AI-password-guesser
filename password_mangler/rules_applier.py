@@ -1,69 +1,68 @@
 from typing import Callable
-from enum import Enum
 from password_rules import *
+from commons import *
 
 
 UnStrRule = Callable[[str], str]
 BinStrRule = Callable[[str, str], str]
 
 
-def apply_unary_rules_to_strings(
+def apply_unary_rules_to_phrases(
     rules: list[UnStrRule],
-    strings: list[str],
-) -> list[str]:
-    strings_after_applying_rules: list[str] = []
-    for string in strings:
+    phrases: list[Phrase],
+) -> list[Phrase]:
+    phrases_after_applying_rules: list[Phrase] = []
+    for phrase in phrases:
         for rule in rules:
-            new_string = rule(string)
-            strings_after_applying_rules.append(new_string)
-    return strings_after_applying_rules
+            new_string = rule(phrase.text)
+            new_phrase = Phrase(new_string, phrase.labels[:])
+            phrases_after_applying_rules.append(new_phrase)
+    return phrases_after_applying_rules
 
 
-def apply_binary_rules_to_strings(
+def apply_binary_rules_to_phrases(
     rules: list[BinStrRule],
-    strings: list[str],
-) -> list[str]:
-    strings_after_applying_rules: list[str] = []
-    for string1 in strings:
-        for string2 in strings:
-            if string1 == string2:
+    phrases: list[Phrase],
+) -> list[Phrase]:
+    strings_after_applying_rules: list[Phrase] = []
+    for phrase1 in phrases:
+        for phrase2 in phrases:
+            if phrase1.text == phrase2.text:
                 continue
             for rule in rules:
-                new_string = rule(string1, string2)
-                strings_after_applying_rules.append(new_string)
+                new_string = rule(phrase1.text, phrase2.text)
+                new_labels = phrase1.labels + phrase2.labels
+                new_phrase = Phrase(new_string, new_labels)
+                strings_after_applying_rules.append(new_phrase)
     return strings_after_applying_rules
 
 
-class ManglingEpochType(Enum):
-    UNARY = 1
-    BINARY = 2
-
-
-def mangle_strings(
+def mangle_phrases(
     unary_rules: list[UnStrRule],
     binary_rules: list[BinStrRule],
     mangling_schedule: list[ManglingEpochType],
-    strings: list[str],
-) -> list[str]:
-    mangled_strings: list[str] = strings
+    phrases: list[Phrase],
+) -> list[Phrase]:
+    mangled_phrases: list[Phrase] = phrases
     for mangling_epoch_type in mangling_schedule:
         if mangling_epoch_type == ManglingEpochType.UNARY:
-            mangled_strings = apply_unary_rules_to_strings(unary_rules, mangled_strings)
+            mangled_phrases = apply_unary_rules_to_phrases(unary_rules, mangled_phrases)
         elif mangling_epoch_type == ManglingEpochType.BINARY:
-            mangled_strings = apply_binary_rules_to_strings(binary_rules, mangled_strings)
-        mangled_strings = list(set(mangled_strings))
-    return mangled_strings
+            mangled_phrases = apply_binary_rules_to_phrases(binary_rules, mangled_phrases)
+        mangled_phrases = list(set(mangled_phrases))
+    return mangled_phrases
 
 
 if __name__ == "__main__":
-    strings = ["piotr", "2001"]
+    phrases = [Phrase("piotr", [LabelType.PERSON]),
+               Phrase("2001", [LabelType.DATE])]
     unary_rules = [capitalize, toggle_case]
     binary_rules = [join, interlace]
     mangling_schedule = [ManglingEpochType.UNARY] * 2 + [ManglingEpochType.BINARY]
-    mangled_strings = mangle_strings(
+    mangled_phrases = mangle_phrases(
         unary_rules,
         binary_rules,
-        strings,
-        mangling_schedule
+        mangling_schedule,
+        phrases
     )
-    print(mangled_strings)
+    print(mangled_phrases)

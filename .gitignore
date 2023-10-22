@@ -6,3 +6,4 @@ htmlcov/
 .vscode/
 *.pdf
 *.txt
+output/
