@@ -37,29 +37,29 @@ def parse_label(text: str) -> LabelType:
             raise NotSupportedLabelType(text)
 
 
-def parse_text_to_phrases(text: str, label: LabelType, stopwords: set[str]) -> list[Phrase]:
-    phrases = []
+def parse_text_to_tokens(text: str, label: LabelType, stopwords: set[str]) -> list[Token]:
+    tokens = []
     text = text.lower()
-    tokens = re.split(r'\s{2,}', text)  # split if 2 or more whitespaces between
+    subtokens = re.split(r'\s{2,}', text)  # split if 2 or more whitespaces between
     if not label == LabelType.DATE:
-        tokens = sum(map(lambda s: s.split(), tokens), [])
+        subtokens = sum(map(lambda s: s.split(), subtokens), [])
 
-    for token in tokens:
-        if token in stopwords:
+    for subtoken in subtokens:
+        if subtoken in stopwords:
             continue
-        if token == '':
+        if subtoken == '':
             continue
-        phr = Phrase(token, [label])
-        phrases.append(phr)
-    return phrases
+        tok = Token(subtoken, [label])
+        tokens.append(tok)
+    return tokens
 
 
-def recognize_data_strings(text: str, language: Language) -> list[Phrase]:
+def recognize_data_strings(text: str, language: Language) -> list[Token]:
     """
     Returns list of strings containing data recognized as important
     such as dates, organization names, people's names and surnames and others.
     """
-    important_phrases: list[str] = []
+    important_tokens: list[str] = []
     if language == Language.ENGLISH:
         model = "en_core_web_lg"
         stop_words = set(stopwords.words('english'))
@@ -72,37 +72,37 @@ def recognize_data_strings(text: str, language: Language) -> list[Phrase]:
     for ent in important_text.ents:
         try:
             label = parse_label(ent.label_)
-            new_phrases = parse_text_to_phrases(ent.text, label, stop_words)
-            important_phrases.extend(new_phrases)
+            new_tokens = parse_text_to_tokens(ent.text, label, stop_words)
+            important_tokens.extend(new_tokens)
         except NotSupportedLabelType as e:
             pass
             # print(e)
-    return important_phrases
+    return important_tokens
 
 
-def merge_phrase_duplicates(phrases: list[Phrase]) -> list[Phrase]:
-    phrase_dict = dict[str, Phrase]()
-    for phrase in phrases:
-        text = phrase.text
-        if text in phrase_dict:
-            old_phrase = phrase_dict[text]
-            old_phrase.add_new_labels(phrase.labels)
+def merge_token_duplicates(tokens: list[Token]) -> list[Token]:
+    token_dict = dict[str, Token]()
+    for token in tokens:
+        text = token.text
+        if text in token_dict:
+            old_token = token_dict[text]
+            old_token.add_new_labels(token.labels)
         else:
-            phrase_dict[text] = phrase
-    return list(phrase_dict.values())
+            token_dict[text] = token
+    return list(token_dict.values())
 
 
-def lemmatize_phrases(phrases: list[Phrase], language: Language) -> list[Phrase]:
+def lemmatize_tokens(tokens: list[Token], language: Language) -> list[Token]:
     """
     Creates a list of lemmatized words based on provided list of strings (words).
     """
     if language == Language.ENGLISH:
         lemmatizer = nltk.WordNetLemmatizer()
-        for phrase in phrases:
-            text = phrase.text
+        for token in tokens:
+            text = token.text
             lemmatized_text = lemmatizer.lemmatize(text)
-            phrase.text = lemmatized_text
-        return phrases
+            token.text = lemmatized_text
+        return tokens
     elif language == Language.POLISH:
         raise NotImplementedError('Polish lemmatization is not implemented')
         if not MORFEUSZ_AVAILABLE:
@@ -118,34 +118,34 @@ def lemmatize_phrases(phrases: list[Phrase], language: Language) -> list[Phrase]
         return lemmatized_words
 
 
-def filter_phrases_based_on_label(phrases: list[Phrase], label_types: list[LabelType],
-                                  filter_type: FilterType) -> list[Phrase]:
-    new_phrases = list[Phrase]()
+def filter_tokens_based_on_label(tokens: list[Token], label_types: list[LabelType],
+                                  filter_type: FilterType) -> list[Token]:
+    new_tokens = list[Token]()
     if filter_type == FilterType.AND:
-        for phrase in phrases:
+        for token in tokens:
             include = True
             for label_type in label_types:
-                if label_type not in phrase.labels:
+                if label_type not in token.labels:
                     include = False
                     break
             if include:
-                new_phrases.append(phrase)
+                new_tokens.append(token)
     elif filter_type == FilterType.OR:
-        for phrase in phrases:
+        for token in tokens:
             for label_type in label_types:
-                if label_type in phrase.labels:
-                    new_phrases.append(phrase)
+                if label_type in token.labels:
+                    new_tokens.append(token)
                     break
     elif filter_type == FilterType.NOT:
-        for phrase in phrases:
+        for token in tokens:
             include = True
             for label_type in label_types:
-                if label_type in phrase.labels:
+                if label_type in token.labels:
                     include = False
                     break
             if include:
-                new_phrases.append(phrase)
-    return new_phrases
+                new_tokens.append(token)
+    return new_tokens
 
 
 def count_and_sort_words(words: list[str]) -> list[tuple[str, int]]:
@@ -177,7 +177,7 @@ if __name__ == "__main__":
     # Lemmatiziation and couting of words
     words = text.split()
     # try:
-    #     lemmatized_words = lemmatize_phrases(words, Language.POLISH)
+    #     lemmatized_words = lemmatize_tokens(words, Language.POLISH)
     # except MorfeuszNotAvailable as _:
     #     print("Can't lemmatize in polish because morfeusz is not available")
 
@@ -185,6 +185,6 @@ if __name__ == "__main__":
     # print(sorted_word_count)
 
     # Important data recognition
-    # important_polish_phrases = recognize_data_strings(text, Language.POLISH)
-    important_english_phrases = recognize_data_strings(text, Language.ENGLISH)
-    print(important_english_phrases)
+    # important_polish_tokens = recognize_data_strings(text, Language.POLISH)
+    important_english_tokens = recognize_data_strings(text, Language.ENGLISH)
+    print(important_english_tokens)

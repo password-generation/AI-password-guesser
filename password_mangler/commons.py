@@ -46,7 +46,7 @@ class FilterType(Enum):
     NOT = 3
 
 
-class Phrase:
+class Token:
     def __init__(self, text: str, labels: list[LabelType]):
         self.text = text
         self.labels = list(set(labels))

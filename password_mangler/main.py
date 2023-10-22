@@ -1,10 +1,10 @@
 import argparse
 from file_reader import *
 from yaml_parser import parse_yaml
-from rules_applier import mangle_phrases
+from rules_applier import mangle_tokens
 from commons import Language
 from text_parser import *
-from results_saver import save_important_phrases
+from results_saver import save_important_tokens
 
 
 def guess_passwords(
@@ -23,45 +23,45 @@ def guess_passwords(
     print(f"Language: {arg_language}")
     # Gathering tokens from the evidence files
     language = Language.ENGLISH if arg_language == "EN" else Language.POLISH
-    phrases = read_evidence(evidence_files, language)
-    phrases = lemmatize_phrases(phrases, language)
-    phrases = merge_phrase_duplicates(phrases)
+    tokens = read_evidence(evidence_files, language)
+    tokens = lemmatize_tokens(tokens, language)
+    tokens = merge_token_duplicates(tokens)
 
     label_types = [LabelType.DATE]
     filter_type = FilterType.NOT
-    phrases = filter_phrases_based_on_label(phrases, label_types, filter_type)
-    print(phrases)
+    tokens = filter_tokens_based_on_label(tokens, label_types, filter_type)
+    print(tokens)
 
-    # sorted_word_count = count_and_sort_words(phrases)
+    # sorted_word_count = count_and_sort_words(tokens)
 
     unary_rules, binary_rules, mangling_schedule = parse_yaml(config_file)
 
-    phrases = mangle_phrases(unary_rules, binary_rules,
-                             mangling_schedule, phrases,
+    tokens = mangle_tokens(unary_rules, binary_rules,
+                             mangling_schedule, tokens,
                              wildcards_present, max_length)
 
     label_types = [LabelType.PERSON]
     filter_type = FilterType.AND
-    phrases = filter_phrases_based_on_label(phrases, label_types, filter_type)
+    tokens = filter_tokens_based_on_label(tokens, label_types, filter_type)
 
     if wildcards_present:
         label_types.append(LabelType.WILDCARD)
         filter_type = FilterType.AND
-        phrases = filter_phrases_based_on_label(phrases, label_types, filter_type)
+        tokens = filter_tokens_based_on_label(tokens, label_types, filter_type)
 
-    save_important_phrases(phrases, output_filename)
-    for phr in sorted(phrases):
-        print(phr)
+    save_important_tokens(tokens, output_filename)
+    for tok in sorted(tokens):
+        print(tok)
 
 
-def read_evidence(evidence_files: list[str], language: Language) -> list[Phrase]:
-    important_phrases = []
+def read_evidence(evidence_files: list[str], language: Language) -> list[Token]:
+    important_tokens = []
     for file_name in evidence_files:
         text = extract_text_from_file(file_name)
         text = clear_text(text)
-        important_phrases += recognize_data_strings(text, language)
+        important_tokens += recognize_data_strings(text, language)
 
-    return important_phrases
+    return important_tokens
 
 
 def create_parser() -> argparse.ArgumentParser:

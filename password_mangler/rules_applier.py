@@ -7,81 +7,81 @@ UnStrRule = Callable[[str], str]
 BinStrRule = Callable[[str, str], str]
 
 
-def apply_unary_rules_to_phrases(
+def apply_unary_rules_to_tokens(
     rules: list[UnStrRule],
-    phrases: list[Phrase],
+    tokens: list[Token],
     max_length: int,
-) -> list[Phrase]:
-    phrases_after_applying_rules: list[Phrase] = []
-    for phrase in phrases:
+) -> list[Token]:
+    tokens_after_applying_rules: list[Token] = []
+    for token in tokens:
         for rule in rules:
-            new_string = rule(phrase.text)
+            new_string = rule(token.text)
             if len(new_string) > max_length:
                 new_string = new_string[:max_length]
 
-            new_phrase = Phrase(new_string, phrase.labels[:])
-            phrases_after_applying_rules.append(new_phrase)
+            new_token = Token(new_string, token.labels[:])
+            tokens_after_applying_rules.append(new_token)
 
-    return phrases_after_applying_rules
+    return tokens_after_applying_rules
 
 
-def apply_binary_rules_to_phrases(
+def apply_binary_rules_to_tokens(
     rules: list[BinStrRule],
-    phrases: list[Phrase],
+    tokens: list[Token],
     max_length: int,
-) -> list[Phrase]:
-    strings_after_applying_rules: list[Phrase] = []
-    for phrase1 in phrases:
-        for phrase2 in phrases:
-            if phrase1.text == phrase2.text:
+) -> list[Token]:
+    strings_after_applying_rules: list[Token] = []
+    for token1 in tokens:
+        for token2 in tokens:
+            if token1.text == token2.text:
                 continue
             for rule in rules:
-                new_string = rule(phrase1.text, phrase2.text)
+                new_string = rule(token1.text, token2.text)
                 if len(new_string) > max_length:
                     new_string = new_string[:max_length]
 
-                new_labels = phrase1.labels + phrase2.labels
-                new_phrase = Phrase(new_string, new_labels)
-                strings_after_applying_rules.append(new_phrase)
+                new_labels = token1.labels + token2.labels
+                new_token = Token(new_string, new_labels)
+                strings_after_applying_rules.append(new_token)
 
     return strings_after_applying_rules
 
 
-def mangle_phrases(
+def mangle_tokens(
     unary_rules: list[UnStrRule],
     binary_rules: list[BinStrRule],
     mangling_schedule: list[ManglingEpochType],
-    phrases: list[Phrase],
+    tokens: list[Token],
     wildcard: bool = True,
     max_length: int = 8,
-) -> list[Phrase]:
-    mangled_phrases: list[Phrase] = phrases
+) -> list[Token]:
+    mangled_tokens: list[Token] = tokens
     for mangling_epoch_type in mangling_schedule:
         if wildcard:
             for n in range(1, max_length + 1):
-                mangled_phrases.append(Phrase(WILDCARD_CHAR * n,
+                mangled_tokens.append(Token(WILDCARD_CHAR * n,
                                               [LabelType.WILDCARD]))
 
         if mangling_epoch_type == ManglingEpochType.UNARY:
-            mangled_phrases = apply_unary_rules_to_phrases(unary_rules, mangled_phrases,
+            mangled_tokens = apply_unary_rules_to_tokens(unary_rules, mangled_tokens,
                                                            max_length)
         elif mangling_epoch_type == ManglingEpochType.BINARY:
-            mangled_phrases = apply_binary_rules_to_phrases(binary_rules, mangled_phrases,
+            mangled_tokens = apply_binary_rules_to_tokens(binary_rules, mangled_tokens,
                                                             max_length)
-        mangled_phrases = list(set(mangled_phrases))
-    return mangled_phrases
+        mangled_tokens = list(set(mangled_tokens))
+    return mangled_tokens
 
 
 if __name__ == "__main__":
-    phrases = [Phrase("piotr", [LabelType.PERSON]),
-               Phrase("2001", [LabelType.DATE])]
+    tokens = [Token("piotr", [LabelType.PERSON]),
+               Token("2001", [LabelType.DATE])]
     unary_rules = [capitalize, toggle_case]
     binary_rules = [join, interlace]
     mangling_schedule = [ManglingEpochType.UNARY] * 2 + [ManglingEpochType.BINARY]
-    mangled_phrases = mangle_phrases(
+    mangled_tokens = mangle_tokens(
         unary_rules,
         binary_rules,
         mangling_schedule,
-        phrases
+        tokens
     )
-    print(mangled_phrases)
+    print(mangled_tokens)

@@ -1,19 +1,19 @@
 import os
 import pandas as pd
-from commons import Phrase
+from commons import Token
 
 
-def save_important_phrases(important_phrases: list[Phrase], file_name: str) -> None:
+def save_important_tokens(important_tokens: list[Token], file_name: str) -> None:
     """
-    Saves important phrases in csv format into ./output/file_name.csv
+    Saves important tokens in csv format into ./output/file_name.csv
     """
     # Creating output folder if it does not exist
     if not os.path.exists("./output"):
         os.makedirs("./output")
-    # Saving extracted important phrases
+    # Saving extracted important tokens
     data = {
-        "phrases": [phrase.text for phrase in sorted(important_phrases)],
-        "labels": [phrase.labels for phrase in important_phrases],
+        "tokens": [token.text for token in sorted(important_tokens)],
+        "labels": [token.labels for token in important_tokens],
     }
     df = pd.DataFrame(data)
     df.to_csv(f"./output/{file_name}")
@@ -53,7 +53,7 @@ if __name__ == "__main__":
     # Lemmatiziation and couting of words
     words = text.split()
     # try:
-    #     lemmatized_words = lemmatize_phrases(words, Language.POLISH)
+    #     lemmatized_words = lemmatize_tokens(words, Language.POLISH)
     # except MorfeuszNotAvailable as _:
     #     print("Can't lemmatize in polish because morfeusz is not available")
 
@@ -61,8 +61,8 @@ if __name__ == "__main__":
     save_sorted_words(sorted_word_count, "sorted_tokens_test.csv")
 
     # Important data recognition
-    # important_polish_phrases = recognize_data_strings(text, Language.POLISH)
-    # save_important_phrases(important_polish_phrases, "important_phrases_polish")
+    # important_polish_tokens = recognize_data_strings(text, Language.POLISH)
+    # save_important_tokens(important_polish_tokens, "important_tokens_polish")
 
-    important_english_phrases = recognize_data_strings(text, Language.ENGLISH)
-    save_important_phrases(important_english_phrases, "important_phrases_english.csv")
+    important_english_tokens = recognize_data_strings(text, Language.ENGLISH)
+    save_important_tokens(important_english_tokens, "important_tokens_english.csv")
