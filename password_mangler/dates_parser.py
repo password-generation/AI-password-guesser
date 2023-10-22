@@ -34,4 +34,5 @@ def extract_parse_dates(tokens: list[Token]):
             new_tokens.append(Token(str(short_year), LabelType.DATE))
 
         other_tokens.extend(new_tokens)
-        return other_tokens
+
+    return other_tokens
