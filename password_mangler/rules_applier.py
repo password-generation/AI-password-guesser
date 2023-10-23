@@ -55,13 +55,14 @@ def mangle_tokens(
 ) -> list[Token]:
     mangled_tokens: list[Token] = tokens
     for epoch in user_config['mangling_schedule']:
-        mangled_tokens = filter_tokens_based_on_label(
-            mangled_tokens, epoch['labels'], FilterType.OR)
-
         if wildcard:
             for n in range(1, max_length + 1):
                 mangled_tokens.append(Token(WILDCARD_CHAR * n,
-                                              [LabelType.WILDCARD]))
+                                            [LabelType.WILDCARD]))
+
+        mangled_tokens = filter_tokens_based_on_label(
+            mangled_tokens, epoch['labels'], FilterType.OR)
+
 
         rules = epoch['rules']
         if epoch['type'] == ManglingEpochType.UNARY:

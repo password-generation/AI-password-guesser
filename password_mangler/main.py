@@ -14,13 +14,14 @@ def guess_passwords(
     evidence_files: list[str],
     config_file: str,
     wildcards_present: bool,
+    verbose: bool,
 ) -> None:
     # Printing arguments
     print(f"Generating passwords of max length {max_length}")
     print(f"Output file: {output_filename}")
     print(f"Evidence files: {evidence_files}")
     print(f"Language: {arg_language}")
-    print(f"Wildcards are {'not' if not wildcards_present else ''} present")
+    print(f"Wildcards are {'not ' if not wildcards_present else ''}present")
 
     # Gathering tokens from the evidence files
     language = Language.ENGLISH if arg_language == "EN" else Language.POLISH
@@ -29,27 +30,22 @@ def guess_passwords(
     tokens = merge_token_duplicates(tokens)
 
     save_tokens(tokens, "extracted_tokens.csv")
-    print("Extracted tokens")
-    for tok in sorted(tokens):
-        print(tok)
 
+    print(f"Extracted {len(tokens)} tokens")
+    if verbose:
+        for tok in sorted(tokens):
+            print(tok)
     # sorted_word_count = count_and_sort_words(tokens)
 
     user_config = parse_yaml(config_file)
     tokens = mangle_tokens(user_config, tokens, wildcards_present, max_length)
 
-    label_types = [LabelType.PERSON]
-    filter_type = FilterType.AND
-
-    if wildcards_present:
-        label_types.append(LabelType.WILDCARD)
-        filter_type = FilterType.AND
-        tokens = filter_tokens_based_on_label(tokens, label_types, filter_type)
-
     save_tokens(tokens, output_filename)
-    print("Mangled tokens")
-    for tok in sorted(tokens):
-        print(tok)
+
+    print(f"Mangled {len(tokens)} tokens")
+    if verbose:
+        for tok in sorted(tokens):
+            print(tok)
 
 
 def read_evidence(evidence_files: list[str], language: Language) -> list[Token]:
@@ -106,6 +102,13 @@ def create_parser() -> argparse.ArgumentParser:
         help="Flag for adding wildcards to passwords"
     )
     parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        default=False,
+        help="Flag for printing verbose output"
+    )
+    parser.add_argument(
         "filename",
         metavar="FILENAME",
         type=str,
@@ -125,4 +128,5 @@ def main():
         evidence_files=args.filename,
         config_file=args.config,
         wildcards_present=args.wildcard,
+        verbose=args.verbose
     )

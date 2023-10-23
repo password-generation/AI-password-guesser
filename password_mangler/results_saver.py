@@ -11,8 +11,9 @@ def save_tokens(tokens: list[Token], file_name: str) -> None:
     if not os.path.exists("./output"):
         os.makedirs("./output")
     # Saving extracted important tokens
+    tokens = sorted(tokens)
     data = {
-        "tokens": [token.text for token in sorted(tokens)],
+        "tokens": [token.text for token in tokens],
         "labels": [token.labels for token in tokens],
     }
     df = pd.DataFrame(data)
