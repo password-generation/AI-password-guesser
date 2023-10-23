@@ -1,11 +1,21 @@
-unary_rules:
-- capitalize
-- toggle_case
-
-binary_rules:
-- join
-
 mangling_schedule:
-- unary
-- binary
-- unary
+  - type: unary
+    rules:
+      - capitalize
+      - toggle_case
+    labels:
+      - PERSON
+      - ORG
+
+  - type: binary
+    rules:
+      - join
+    labels:
+      - PERSON
+      - ORG
+
+  - type: unary
+    rules:
+      - nothing
+    labels:
+      - PERSON

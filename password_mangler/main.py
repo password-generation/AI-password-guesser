@@ -8,41 +8,38 @@ from results_saver import save_tokens
 
 
 def guess_passwords(
-    nr_of_passwords: int,
+    max_length: int,
     output_filename: str,
     arg_language: str,
     evidence_files: list[str],
     config_file: str,
     wildcards_present: bool,
-    max_length: int
 ) -> None:
     # Printing arguments
-    # print(f"Generating {nr_of_passwords} passwords")
-    # print(f"Output file: {output_filename}")
+    print(f"Generating passwords of max length {max_length}")
+    print(f"Output file: {output_filename}")
     print(f"Evidence files: {evidence_files}")
     print(f"Language: {arg_language}")
+    print(f"Wildcards are {'not' if not wildcards_present else ''} present")
+
     # Gathering tokens from the evidence files
     language = Language.ENGLISH if arg_language == "EN" else Language.POLISH
     tokens = read_evidence(evidence_files, language)
     tokens = lemmatize_tokens(tokens, language)
     tokens = merge_token_duplicates(tokens)
 
-    label_types = [LabelType.DATE]
-    filter_type = FilterType.NOT
-    tokens = filter_tokens_based_on_label(tokens, label_types, filter_type)
-    print(tokens)
+    save_tokens(tokens, "extracted_tokens.csv")
+    print("Extracted tokens")
+    for tok in sorted(tokens):
+        print(tok)
 
     # sorted_word_count = count_and_sort_words(tokens)
 
-    unary_rules, binary_rules, mangling_schedule = parse_yaml(config_file)
-
-    tokens = mangle_tokens(unary_rules, binary_rules,
-                             mangling_schedule, tokens,
-                             wildcards_present, max_length)
+    user_config = parse_yaml(config_file)
+    tokens = mangle_tokens(user_config, tokens, wildcards_present, max_length)
 
     label_types = [LabelType.PERSON]
     filter_type = FilterType.AND
-    tokens = filter_tokens_based_on_label(tokens, label_types, filter_type)
 
     if wildcards_present:
         label_types.append(LabelType.WILDCARD)
@@ -50,6 +47,7 @@ def guess_passwords(
         tokens = filter_tokens_based_on_label(tokens, label_types, filter_type)
 
     save_tokens(tokens, output_filename)
+    print("Mangled tokens")
     for tok in sorted(tokens):
         print(tok)
 
@@ -74,17 +72,17 @@ def create_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "-n",
-        "--number",
+        "--length",
         type=int,
-        help="Number of passwords to generate (default: 100)",
-        default=100,
+        help="Max length of passwords",
+        default=10,
     )
     parser.add_argument(
         "-o",
         "--output",
         type=str,
-        help="Text file with generated passwords (default: password_guessing.txt)",
-        default="password_guessing.txt",
+        help="Output file with mangled tokens",
+        default="mangled_tokens.csv",
     )
     parser.add_argument(
         "-l",
@@ -108,13 +106,6 @@ def create_parser() -> argparse.ArgumentParser:
         help="Flag for adding wildcards to passwords"
     )
     parser.add_argument(
-        "-m",
-        "--max",
-        type=int,
-        help="Max length of passwords",
-        default=8
-    )
-    parser.add_argument(
         "filename",
         metavar="FILENAME",
         type=str,
@@ -128,11 +119,10 @@ def main():
     parser = create_parser()
     args = parser.parse_args()
     guess_passwords(
-        nr_of_passwords=args.number,
+        max_length=args.length,
         output_filename=args.output,
         arg_language=args.language,
         evidence_files=args.filename,
         config_file=args.config,
         wildcards_present=args.wildcard,
-        max_length=args.max,
     )

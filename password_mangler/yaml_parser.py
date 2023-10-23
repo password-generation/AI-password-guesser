@@ -1,62 +1,24 @@
 import yaml
-from commons import ManglingEpochType
+from commons import ManglingEpochType, LabelType
 import password_rules
 
 
-def parse_yaml(filename):
+def parse_yaml(filename: str):
     with open(filename, "r") as file:
-        rules = yaml.safe_load(file)
+        user_config = yaml.safe_load(file)
 
-    unary_names, binary_names, mangling_schedule = (
-        rules["unary_rules"],
-        rules["binary_rules"],
-        rules["mangling_schedule"],
-    )
+    for epoch in user_config['mangling_schedule']:
+        epoch['type'] = ManglingEpochType.UNARY if epoch['type'] == 'unary'\
+            else ManglingEpochType.BINARY
 
-    unary, binary = (
-        get_funcs(unary_names),
-        get_funcs(binary_names),
-    )
+        rules = []
+        for rule in epoch['rules']:
+            rules.append(getattr(password_rules, rule))
+        epoch['rules'] = rules
 
-    schedule = get_schedule(mangling_schedule)
+        labels = []
+        for label in epoch['labels']:
+            labels.append(LabelType[label])
+        epoch['labels'] = labels
 
-    return unary, binary, schedule
-
-
-def get_schedule(names):
-    schedule = []
-    for name in names:
-        if name == "unary":
-            schedule.append(ManglingEpochType.UNARY)
-        elif name == "binary":
-            schedule.append(ManglingEpochType.BINARY)
-
-        # TODO handling other cases
-
-    return schedule
-
-
-def get_funcs(names, module=password_rules):
-    funcs = []
-    for name in names:
-        func = getattr(module, name)
-        funcs.append(func)
-    return funcs
-
-
-if __name__ == "__main__":
-    unary, binary, schedule = parse_yaml("config.yaml")
-    print(unary, binary, schedule)
-
-    print("--- unary ---")
-    s1 = "p@ssW0rD"
-    s2 = "ha$eLko"
-    for u in unary:
-        s1 = u(s1)
-        print(s1)
-
-    print("--- binary ---")
-    double = ""
-    for b in binary:
-        double = b(s1, s2)
-        print(double)
+    return user_config

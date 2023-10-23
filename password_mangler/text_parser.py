@@ -118,40 +118,17 @@ def lemmatize_tokens(tokens: list[Token], language: Language) -> list[Token]:
         return lemmatized_words
 
 
-def filter_tokens_based_on_label(tokens: list[Token], label_types: list[LabelType],
-                                  filter_type: FilterType) -> list[Token]:
-    new_tokens = list[Token]()
-    if filter_type == FilterType.AND:
-        for token in tokens:
-            include = True
-            for label_type in label_types:
-                if label_type not in token.labels:
-                    include = False
-                    break
-            if include:
-                new_tokens.append(token)
-    elif filter_type == FilterType.OR:
-        for token in tokens:
-            for label_type in label_types:
-                if label_type in token.labels:
-                    new_tokens.append(token)
-                    break
-    elif filter_type == FilterType.NOT:
-        for token in tokens:
-            include = True
-            for label_type in label_types:
-                if label_type in token.labels:
-                    include = False
-                    break
-            if include:
-                new_tokens.append(token)
-    return new_tokens
-
-
-def email_to_token(name: str, org: str, loc: str) -> list[Token]:
-    return [Token(name, [LabelType.PERSON, LabelType.EMAIL]),
-            Token(org, [LabelType.ORG, LabelType.EMAIL]),
-            Token(loc, [LabelType.LOC, LabelType.EMAIL])]
+def email_to_token(match: re.Match[str]) -> list[Token]:
+    names = [n for n in match.group(1).split('.') if n]
+    orgs = [o for o in match.group(2).split('.') if o]
+    locs = [l for l in match.group(3).split('.') if l]
+    tokens = [Token(name, [LabelType.PERSON, LabelType.EMAIL])
+              for name in names]
+    tokens += [Token(org, [LabelType.ORG, LabelType.EMAIL])
+               for org in orgs]
+    tokens += [Token(loc, [LabelType.LOC, LabelType.EMAIL])
+               for loc in locs]
+    return tokens
 
 
 def recognize_email_addresses(text: str) -> list[Token]:
@@ -160,7 +137,7 @@ def recognize_email_addresses(text: str) -> list[Token]:
 
     tokens = []
     for m in re.finditer(pattern, text):
-        tokens.extend(email_to_token(m.group(1), m.group(2), m.group(3)))
+        tokens.extend(email_to_token(m))
 
     return tokens
 

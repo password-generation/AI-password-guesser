@@ -48,40 +48,58 @@ def apply_binary_rules_to_tokens(
 
 
 def mangle_tokens(
-    unary_rules: list[UnStrRule],
-    binary_rules: list[BinStrRule],
-    mangling_schedule: list[ManglingEpochType],
+    user_config,
     tokens: list[Token],
     wildcard: bool = True,
     max_length: int = 8,
 ) -> list[Token]:
     mangled_tokens: list[Token] = tokens
-    for mangling_epoch_type in mangling_schedule:
+    for epoch in user_config['mangling_schedule']:
+        mangled_tokens = filter_tokens_based_on_label(
+            mangled_tokens, epoch['labels'], FilterType.OR)
+
         if wildcard:
             for n in range(1, max_length + 1):
                 mangled_tokens.append(Token(WILDCARD_CHAR * n,
                                               [LabelType.WILDCARD]))
 
-        if mangling_epoch_type == ManglingEpochType.UNARY:
-            mangled_tokens = apply_unary_rules_to_tokens(unary_rules, mangled_tokens,
-                                                           max_length)
-        elif mangling_epoch_type == ManglingEpochType.BINARY:
-            mangled_tokens = apply_binary_rules_to_tokens(binary_rules, mangled_tokens,
-                                                            max_length)
+        rules = epoch['rules']
+        if epoch['type'] == ManglingEpochType.UNARY:
+            mangled_tokens = apply_unary_rules_to_tokens(rules, mangled_tokens,
+                                                         max_length)
+        elif epoch['type'] == ManglingEpochType.BINARY:
+            mangled_tokens = apply_binary_rules_to_tokens(rules, mangled_tokens,
+                                                          max_length)
         mangled_tokens = list(set(mangled_tokens))
+
     return mangled_tokens
 
 
-if __name__ == "__main__":
-    tokens = [Token("piotr", [LabelType.PERSON]),
-               Token("2001", [LabelType.DATE])]
-    unary_rules = [capitalize, toggle_case]
-    binary_rules = [join, interlace]
-    mangling_schedule = [ManglingEpochType.UNARY] * 2 + [ManglingEpochType.BINARY]
-    mangled_tokens = mangle_tokens(
-        unary_rules,
-        binary_rules,
-        mangling_schedule,
-        tokens
-    )
-    print(mangled_tokens)
+def filter_tokens_based_on_label(tokens: list[Token], label_types: list[LabelType],
+                                 filter_type: FilterType) -> list[Token]:
+    new_tokens = list[Token]()
+    if filter_type == FilterType.AND:
+        for token in tokens:
+            include = True
+            for label_type in label_types:
+                if label_type not in token.labels:
+                    include = False
+                    break
+            if include:
+                new_tokens.append(token)
+    elif filter_type == FilterType.OR:
+        for token in tokens:
+            for label_type in label_types:
+                if label_type in token.labels:
+                    new_tokens.append(token)
+                    break
+    elif filter_type == FilterType.NOT:
+        for token in tokens:
+            include = True
+            for label_type in label_types:
+                if label_type in token.labels:
+                    include = False
+                    break
+            if include:
+                new_tokens.append(token)
+    return new_tokens

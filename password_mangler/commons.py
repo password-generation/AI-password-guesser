@@ -59,8 +59,8 @@ class Token:
     def __str__(self) -> str:
         if LabelType.WILDCARD in self.labels:
             replaced_text = self.text.replace(WILDCARD_CHAR, '*')
-            return f"{replaced_text} : {self.labels}"
-        return f"{self.text} : {self.labels}"
+            return f"{replaced_text:12} : {self.labels}"
+        return f"{self.text:12} : {self.labels}"
 
     def __repr__(self) -> str:
         return str(self)
