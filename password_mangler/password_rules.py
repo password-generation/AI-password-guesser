@@ -1,3 +1,6 @@
+from random import randint
+
+
 def nothing(s: str) -> str:
     return s
 
@@ -19,18 +22,24 @@ def invert_capitalize(s: str) -> str:
 
 
 def toggle_case(s: str) -> str:
-    return "".join(c.upper() if c.islower() else c.lower() for c in s)
+    return s.swapcase()
 
 
-def toggle_at(s: str, i: int) -> str:
-    return s[:i] + s[i].swapcase() + s[i + 1 :]
+def toggle_at(i: int, s: str) -> str:
+    if i < len(s):
+        return s[:i] + s[i].swapcase() + s[i + 1 :]
+    return s
+
+
+def toggle_random(s: str) -> str:
+    return toggle_at(randint(0, len(s) - 1), s)
 
 
 def reverse(s: str) -> str:
-    return "".join(reversed(s))
+    return s[::-1]
 
 
-def duplicate(s: str, n: int = 1) -> str:
+def duplicate(n: int, s: str) -> str:
     return s * (n + 1)
 
 
@@ -38,63 +47,65 @@ def reflect(s: str) -> str:
     return s + s[::-1]
 
 
-def rotate_left(s: str, i: int = 1) -> str:
+def rotate_left(i: int, s: str) -> str:
     return s[i:] + s[:i]
 
 
-def rotate_right(s: str, i: int = 1) -> str:
+def rotate_right(i: int, s: str) -> str:
     return s[len(s) - i :] + s[: len(s) - i]
 
 
-def truncate_left(s: str, i: int = 1) -> str:
+def cut_start(i: int, s: str) -> str:
     return s[i:]
 
 
-def truncate_right(s: str, i: int = 1) -> str:
-    return s[: len(s) - i]
+def cut_end(i: int, s: str) -> str:
+    if i < len(s):
+        return s[: len(s) - i]
+    return s
 
 
-def delete_at(s: str, i: int) -> str:
+def delete_at(i: int, s: str) -> str:
     return s[:i] + s[i + 1 :]
 
 
-def extract_range(s: str, i: int, n: int) -> str:
+def extract_range(i: int, n: int, s: str) -> str:
     return s[i : i + n]
 
 
-def omit_range(s: str, i: int, n: int) -> str:
+def omit_range(i: int, n: int, s: str) -> str:
     return s[:i] + s[i + n :]
 
 
-def insert_at(s: str, i: int, c: str) -> str:
+def insert_at(i: int, c: str, s: str) -> str:
     return s[:i] + c + s[i:]
 
 
-def overwrite_at(s: str, i: int, c: str) -> str:
+def overwrite_at(i: int, c: str, s: str) -> str:
     return s[:i] + c + s[i + 1 :]
 
 
-def replace(s: str, old: str, new: str) -> str:
+def replace(old: str, new: str, s: str) -> str:
     return s.replace(old, new)
 
 
-def purge(s: str, c: str) -> str:
+def purge(c: str, s: str) -> str:
     return s.replace(c, "")
 
 
-def duplicate_first(s: str, n: int = 1, i: int = 1) -> str:
+def duplicate_first(n: int, i: int, s: str) -> str:
     return s[:i] * (n + 1) + s[i:]
 
 
-def duplicate_last(s: str, n: int = 1, i: int = 1) -> str:
+def duplicate_last(n: int, i: int, s: str) -> str:
     return s[:-i] + s[-i:] * (n + 1)
 
 
-def duplicate_at(s: str, i: int, n: int = 1) -> str:
+def duplicate_at(i: int, n: int, s: str) -> str:
     return s[:i] + s[i] * (n + 1) + s[i + 1 :]
 
 
-def duplicate_all(s: str, n: int = 1) -> str:
+def duplicate_all(n: int, s: str) -> str:
     return "".join(c * (n + 1) for c in s)
 
 
@@ -106,17 +117,17 @@ def swap_back(s: str) -> str:
     return s[:-2] + s[-1] + s[-2]
 
 
-def swap_chars_at(s: str, i: int, j: int) -> str:
+def swap_chars_at(i: int, j: int, s: str) -> str:
     if i > j:
         i, j = j, i
     return s[:i] + s[j] + s[i + 1 : j] + s[i] + s[j + 1 :]
 
 
-def increment_char_ascii_at(s: str, i: int, n: int = 1) -> str:
+def increment_char_ascii_at(i: int, n: int, s: str) -> str:
     return s[:i] + chr(ord(s[i]) + n) + s[i + 1 :]
 
 
-def decrement_char_ascii_at(s: str, i: int, n: int = 1) -> str:
+def decrement_char_ascii_at(i: int, n: int, s: str) -> str:
     return s[:i] + chr(ord(s[i]) - n) + s[i + 1 :]
 
 

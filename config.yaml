@@ -1,21 +1,43 @@
 mangling_schedule:
   - type: unary
     rules:
+      - nothing
+      - lowercase
+      - uppercase
       - capitalize
       - toggle_case
+      - toggle_at: 2
+      - toggle_random
+      - cut_end: 1
+      - cut_end: 2
+      - cut_end: 3
+      - cut_end: 4
+      - overwrite_at: [0, '!']
+      - overwrite_at: [1, '!']
+      - overwrite_at: [2, '!']
+      - overwrite_at: [3, '!']
     labels:
       - PERSON
       - ORG
+      - LOC
+      - DATE
+      - EMAIL
+      - WILDCARD
 
   - type: binary
     rules:
       - join
+      - interlace
     labels:
       - PERSON
       - ORG
+      - LOC
+      - DATE
+      - EMAIL
+      - WILDCARD
 
-  - type: unary
-    rules:
-      - nothing
-    labels:
-      - PERSON
+  # - type: unary
+  #   rules:
+  #     - nothing
+  #   labels:
+  #     - PERSON
