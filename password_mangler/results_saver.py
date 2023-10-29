@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-from commons import Token
+from commons import LabelType, Token
 
 
 def save_tokens(tokens: list[Token], file_name: str) -> None:
@@ -14,7 +14,8 @@ def save_tokens(tokens: list[Token], file_name: str) -> None:
     tokens = sorted(tokens)
     data = {
         "tokens": [token.text for token in tokens],
-        "labels": [token.labels for token in tokens],
+        "labels": [LabelType.from_binary_mask(token.binary_mask)
+                   for token in tokens],
     }
     df = pd.DataFrame(data)
     df.to_csv(f"./output/{file_name}")

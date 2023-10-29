@@ -34,7 +34,7 @@ def guess_passwords(
     print(f"Extracted {len(tokens)} tokens")
     if verbose:
         for tok in sorted(tokens):
-            print(tok)
+            print(token_to_str(tok))
     # sorted_word_count = count_and_sort_words(tokens)
 
     user_config = parse_yaml(config_file)
@@ -45,7 +45,7 @@ def guess_passwords(
     print(f"Mangled {len(tokens)} tokens")
     if verbose:
         for tok in sorted(tokens):
-            print(tok)
+            print(token_to_str(tok))
 
 
 def read_evidence(evidence_files: list[str], language: Language) -> list[Token]:
@@ -71,7 +71,7 @@ def create_parser() -> argparse.ArgumentParser:
         "--length",
         type=int,
         help="Max length of passwords",
-        default=10,
+        default=16,
     )
     parser.add_argument(
         "-o",

@@ -1,4 +1,5 @@
 import re
+from collections import defaultdict
 from commons import Language, LabelType
 from collections import Counter
 import spacy
@@ -51,7 +52,7 @@ def parse_text_to_tokens(
             continue
         if subtoken == "":
             continue
-        tok = Token(subtoken, [label])
+        tok = Token(subtoken, 1 << label.value)
         tokens.append(tok)
     return tokens
 
@@ -83,15 +84,16 @@ def recognize_data_strings(text: str, language: Language) -> list[Token]:
 
 
 def merge_token_duplicates(tokens: list[Token]) -> list[Token]:
-    token_dict = dict[str, Token]()
+    token_dict = defaultdict[str, int](int)
     for token in tokens:
         text = token.text
-        if text in token_dict:
-            old_token = token_dict[text]
-            old_token.add_new_labels(token.labels)
-        else:
-            token_dict[text] = token
-    return list(token_dict.values())
+        binary_mask = token.binary_mask
+        token_dict[text] |= binary_mask
+
+    new_tokens = list(map(
+        lambda k_v: Token(*k_v),
+        token_dict.items()))
+    return new_tokens
 
 
 def lemmatize_tokens(tokens: list[Token], language: Language) -> list[Token]:
@@ -100,10 +102,10 @@ def lemmatize_tokens(tokens: list[Token], language: Language) -> list[Token]:
     """
     if language == Language.ENGLISH:
         lemmatizer = nltk.WordNetLemmatizer()
-        for token in tokens:
+        for i, token in enumerate(tokens):
             text = token.text
             lemmatized_text = lemmatizer.lemmatize(text)
-            token.text = lemmatized_text
+            tokens[i] = Token(lemmatized_text, token.binary_mask)
         return tokens
     elif language == Language.POLISH:
         raise NotImplementedError("Polish lemmatization is not implemented")
@@ -120,43 +122,20 @@ def lemmatize_tokens(tokens: list[Token], language: Language) -> list[Token]:
         return lemmatized_words
 
 
-def filter_tokens_based_on_label(
-    tokens: list[Token], label_types: list[LabelType], filter_type: FilterType
-) -> list[Token]:
-    new_tokens = list[Token]()
-    if filter_type == FilterType.AND:
-        for token in tokens:
-            include = True
-            for label_type in label_types:
-                if label_type not in token.labels:
-                    include = False
-                    break
-            if include:
-                new_tokens.append(token)
-    elif filter_type == FilterType.OR:
-        for token in tokens:
-            for label_type in label_types:
-                if label_type in token.labels:
-                    new_tokens.append(token)
-                    break
-    elif filter_type == FilterType.NOT:
-        for token in tokens:
-            include = True
-            for label_type in label_types:
-                if label_type in token.labels:
-                    include = False
-                    break
-            if include:
-                new_tokens.append(token)
-    return new_tokens
-
-
-def email_to_token(name: str, org: str, loc: str) -> list[Token]:
-    return [
-        Token(name, [LabelType.PERSON, LabelType.EMAIL]),
-        Token(org, [LabelType.ORG, LabelType.EMAIL]),
-        Token(loc, [LabelType.LOC, LabelType.EMAIL]),
-    ]
+def email_to_token(match: re.Match[str]) -> list[Token]:
+    names = [n for n in match.group(1).split('.') if n]
+    orgs = [o for o in match.group(2).split('.') if o]
+    locs = [l for l in match.group(3).split('.') if l]
+    tokens = [Token(name, LabelType.to_binary_mask([LabelType.PERSON,
+                                                    LabelType.EMAIL]))
+              for name in names]
+    tokens += [Token(org, LabelType.to_binary_mask([LabelType.ORG,
+                                                    LabelType.EMAIL]))
+               for org in orgs]
+    tokens += [Token(loc, LabelType.to_binary_mask([LabelType.LOC,
+                                                    LabelType.EMAIL]))
+               for loc in locs]
+    return tokens
 
 
 def recognize_email_addresses(text: str) -> list[Token]:

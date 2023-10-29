@@ -2,6 +2,8 @@ import pytest
 from password_mangler.password_rules import *
 
 
+#TODO Change order of arguments in some of the functions
+
 def test_nothing():
     assert nothing("ala ma KotA") == "ala ma KotA"
     assert nothing("p@ssW0rd") == "p@ssW0rd"
@@ -68,15 +70,15 @@ def test_rotate_right():
 
 
 def test_truncate_left():
-    assert truncate_left("ala ma KotA") == "la ma KotA"
-    assert truncate_left("ala ma KotA", 2) == "a ma KotA"
-    assert truncate_left("p@ssW0rd") == "@ssW0rd"
+    assert cut_start("ala ma KotA") == "la ma KotA"
+    assert cut_start("ala ma KotA", 2) == "a ma KotA"
+    assert cut_start("p@ssW0rd") == "@ssW0rd"
 
 
 def test_truncate_right():
-    assert truncate_right("ala ma KotA") == "ala ma Kot"
-    assert truncate_right("ala ma KotA", 5) == "ala ma"
-    assert truncate_right("p@ssW0rd") == "p@ssW0r"
+    assert cut_end("ala ma KotA") == "ala ma Kot"
+    assert cut_end("ala ma KotA", 5) == "ala ma"
+    assert cut_end("p@ssW0rd") == "p@ssW0r"
 
 
 def test_delete_at():

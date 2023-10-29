@@ -1,7 +1,8 @@
 from enum import Enum
+from typing import NamedTuple
 
 
-WILDCARD_CHAR = '\1'
+WILDCARD_CHAR = '\t'
 
 class MorfeuszNotAvailable(Exception):
     ...
@@ -22,12 +23,27 @@ class Language(Enum):
 
 
 class LabelType(Enum):
-    PERSON = 1
-    ORG = 2
-    LOC = 3
-    DATE = 4
-    WILDCARD = 5
-    EMAIL = 6
+    PERSON = 0
+    ORG = 1
+    LOC = 2
+    DATE = 3
+    WILDCARD = 4
+    EMAIL = 5
+
+    @staticmethod
+    def to_binary_mask(labels: list['LabelType']) -> int:
+        binary_mask = 0
+        for label in labels:
+            binary_mask |= 1 << label.value
+        return binary_mask
+
+    @staticmethod
+    def from_binary_mask(binary_mask: int) -> list['LabelType']:
+        labels = []
+        for label in LabelType:
+            if binary_mask & (1 << label.value):
+                labels.append(label)
+        return labels
 
     def __str__(self):
         return self.name
@@ -47,29 +63,12 @@ class FilterType(Enum):
     NOT = 3
 
 
-class Token:
-    def __init__(self, text: str, labels: list[LabelType]):
-        self.text = text
-        self.labels = list(set(labels))
+Token = NamedTuple('Token', text=str, binary_mask=int)
 
-    def add_new_labels(self, new_labels: list[LabelType]) -> None:
-        self.labels.extend(new_labels)
-        self.labels = list(set(self.labels))
 
-    def __str__(self) -> str:
-        if LabelType.WILDCARD in self.labels:
-            replaced_text = self.text.replace(WILDCARD_CHAR, '*')
-            return f"{replaced_text:12} : {self.labels}"
-        return f"{self.text:12} : {self.labels}"
-
-    def __repr__(self) -> str:
-        return str(self)
-
-    def __hash__(self) -> int:
-        return hash(self.text)
-
-    def __eq__(self, other) -> bool:
-        return self.text == other.text
-
-    def __lt__(self, other) -> bool:
-        return self.text < other.text
+def token_to_str(token: Token) -> str:
+    labels = LabelType.from_binary_mask(token.binary_mask)
+    if (1 << LabelType.WILDCARD.value) & token.binary_mask:
+        replaced_text = token.text.replace(WILDCARD_CHAR, '*')
+        return f"{replaced_text:12} : {labels}"
+    return f"{token.text:12} : {labels}"
