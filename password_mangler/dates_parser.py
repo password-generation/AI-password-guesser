@@ -1,38 +1,47 @@
 from commons import LabelType, Token
 from dateutil.parser import parse
-from calendar import month_abbr, month_name
 
 
 def extract_parse_dates(tokens: list[Token]):
-    other_tokens = list(filter(lambda x: x.label != LabelType.DATE, tokens))
-    date_tokens = filter(lambda x: x.label == LabelType.DATE, tokens)
+    other_tokens = set(filter(lambda x: LabelType.DATE not in x.labels, tokens))
+    date_tokens = list(filter(lambda x: LabelType.DATE in x.labels, tokens))
+
     for token in date_tokens:
-        datetime = parse(token.text)
-        day = datetime.date().day
-        month = datetime.date().month
-        year = datetime.date().year
+        try:
+            datetime = parse(token.text)
+            labels = token.labels
 
-        short_year = None
-        if year < 2000 and year > 1900:
-            short_year = year % 100
+            day = datetime.date().day
+            month = datetime.date().month
+            year = datetime.date().year
 
-        day_month = day * 100 + month
+            short_year = None
+            if year < 2000 and year > 1900:
+                short_year = year % 100
 
-        short_month = month_abbr[month]
-        long_month = month_name[month]
+            day_month = day * 100 + month
 
-        new_tokens = [
-            Token(str(day), LabelType.DATE),
-            Token(str(month), LabelType.DATE),
-            Token(str(year), LabelType.DATE),
-            Token(str(day_month), LabelType.DATE),
-            Token(short_month, LabelType.DATE),
-            Token(long_month, LabelType.DATE),
-        ]
+            new_tokens = [
+                Token(str(day), labels),
+                Token(str(month), labels),
+                Token(str(year), labels),
+                Token(str(day_month), labels),
+            ]
 
-        if short_year:
-            new_tokens.append(Token(str(short_year), LabelType.DATE))
+            if short_year:
+                new_tokens.append(Token(str(short_year), labels))
 
-        other_tokens.extend(new_tokens)
+            other_tokens.update(new_tokens)
 
-    return other_tokens
+        except:  # not a valid datetime format to parse, we skip it
+            continue
+
+    return list(other_tokens)
+
+
+if __name__ == "__main__":
+    valid_date = "12.12.2001"
+    invalid_date = "aug 90 1996"
+    dates = [Token(valid_date, [LabelType.DATE]), Token(invalid_date, [LabelType.DATE])]
+    parsed_dates = extract_parse_dates(dates)
+    print(parsed_dates)

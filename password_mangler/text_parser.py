@@ -25,29 +25,31 @@ except ImportError:
 
 def parse_label(text: str) -> LabelType:
     match text:
-        case 'PERSON' | 'persName':
+        case "PERSON" | "persName":
             return LabelType.PERSON
-        case 'ORG' | 'orgName':
+        case "ORG" | "orgName":
             return LabelType.ORG
-        case 'LOC' | 'geogName' | 'placeName':
+        case "LOC" | "geogName" | "placeName":
             return LabelType.LOC
-        case 'DATE' | 'date':
+        case "DATE" | "date":
             return LabelType.DATE
         case _:
             raise NotSupportedLabelType(text)
 
 
-def parse_text_to_tokens(text: str, label: LabelType, stopwords: set[str]) -> list[Token]:
+def parse_text_to_tokens(
+    text: str, label: LabelType, stopwords: set[str]
+) -> list[Token]:
     tokens = []
     text = text.lower()
-    subtokens = re.split(r'\s{2,}', text)  # split if 2 or more whitespaces between
+    subtokens = re.split(r"\s{2,}", text)  # split if 2 or more whitespaces between
     if not label == LabelType.DATE:
         subtokens = sum(map(lambda s: s.split(), subtokens), [])
 
     for subtoken in subtokens:
         if subtoken in stopwords:
             continue
-        if subtoken == '':
+        if subtoken == "":
             continue
         tok = Token(subtoken, [label])
         tokens.append(tok)
@@ -62,10 +64,10 @@ def recognize_data_strings(text: str, language: Language) -> list[Token]:
     tokens: list[str] = []
     if language == Language.ENGLISH:
         model = "en_core_web_lg"
-        stop_words = set(stopwords.words('english'))
+        stop_words = set(stopwords.words("english"))
     elif language == Language.POLISH:
         model = "pl_core_news_lg"
-        stop_words = set(stopwords.words('polish'))
+        stop_words = set(stopwords.words("polish"))
 
     nlp = spacy.load(model)
     important_text = nlp(text)
@@ -104,7 +106,7 @@ def lemmatize_tokens(tokens: list[Token], language: Language) -> list[Token]:
             token.text = lemmatized_text
         return tokens
     elif language == Language.POLISH:
-        raise NotImplementedError('Polish lemmatization is not implemented')
+        raise NotImplementedError("Polish lemmatization is not implemented")
         if not MORFEUSZ_AVAILABLE:
             raise MorfeuszNotAvailable()
         morf = morfeusz2.Morfeusz()
@@ -118,21 +120,47 @@ def lemmatize_tokens(tokens: list[Token], language: Language) -> list[Token]:
         return lemmatized_words
 
 
-def email_to_token(match: re.Match[str]) -> list[Token]:
-    names = [n for n in match.group(1).split('.') if n]
-    orgs = [o for o in match.group(2).split('.') if o]
-    locs = [l for l in match.group(3).split('.') if l]
-    tokens = [Token(name, [LabelType.PERSON, LabelType.EMAIL])
-              for name in names]
-    tokens += [Token(org, [LabelType.ORG, LabelType.EMAIL])
-               for org in orgs]
-    tokens += [Token(loc, [LabelType.LOC, LabelType.EMAIL])
-               for loc in locs]
-    return tokens
+def filter_tokens_based_on_label(
+    tokens: list[Token], label_types: list[LabelType], filter_type: FilterType
+) -> list[Token]:
+    new_tokens = list[Token]()
+    if filter_type == FilterType.AND:
+        for token in tokens:
+            include = True
+            for label_type in label_types:
+                if label_type not in token.labels:
+                    include = False
+                    break
+            if include:
+                new_tokens.append(token)
+    elif filter_type == FilterType.OR:
+        for token in tokens:
+            for label_type in label_types:
+                if label_type in token.labels:
+                    new_tokens.append(token)
+                    break
+    elif filter_type == FilterType.NOT:
+        for token in tokens:
+            include = True
+            for label_type in label_types:
+                if label_type in token.labels:
+                    include = False
+                    break
+            if include:
+                new_tokens.append(token)
+    return new_tokens
+
+
+def email_to_token(name: str, org: str, loc: str) -> list[Token]:
+    return [
+        Token(name, [LabelType.PERSON, LabelType.EMAIL]),
+        Token(org, [LabelType.ORG, LabelType.EMAIL]),
+        Token(loc, [LabelType.LOC, LabelType.EMAIL]),
+    ]
 
 
 def recognize_email_addresses(text: str) -> list[Token]:
-    email_rgx = r'(\b[A-Za-z0-9._%+-]+)@([A-Za-z0-9.-]+)\.([A-Z|a-z]{2,7}\b)'
+    email_rgx = r"(\b[A-Za-z0-9._%+-]+)@([A-Za-z0-9.-]+)\.([A-Z|a-z]{2,7}\b)"
     pattern = re.compile(email_rgx)
 
     tokens = []
@@ -144,7 +172,7 @@ def recognize_email_addresses(text: str) -> list[Token]:
 
 def count_and_sort_words(words: list[str]) -> list[tuple[str, int]]:
     """
-    Returns list of touples (word, occurances_count) sorted by occurances in descending order.
+    Returns list of tuples (word, occurrences_count) sorted by occurrences in descending order.
     """
     word_count_dict = dict(Counter(words).items())
     sorted_word_count = [
@@ -159,6 +187,7 @@ def count_and_sort_words(words: list[str]) -> list[tuple[str, int]]:
 if __name__ == "__main__":
     import sys
     from file_reader import extract_text_from_file, clear_text
+
     # Argument Checking
     if len(sys.argv) != 2:
         print("Provide only one name of file in this directory as program argument")
