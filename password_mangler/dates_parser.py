@@ -1,4 +1,4 @@
-from commons import LabelType, Token
+from password_mangler.commons import LabelType, Token
 from dateutil.parser import parse
 
 
@@ -37,11 +37,3 @@ def extract_parse_dates(tokens: list[Token]):
             continue
 
     return list(other_tokens)
-
-
-if __name__ == "__main__":
-    valid_date = "12.12.2001"
-    invalid_date = "aug 90 1996"
-    dates = [Token(valid_date, [LabelType.DATE]), Token(invalid_date, [LabelType.DATE])]
-    parsed_dates = extract_parse_dates(dates)
-    print(parsed_dates)
