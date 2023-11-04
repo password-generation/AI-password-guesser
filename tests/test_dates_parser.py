@@ -1,6 +1,6 @@
 import pytest
 from password_mangler.dates_parser import extract_parse_dates
-from password_mangler.commons import LabelType, Token
+from password_mangler.commons import LabelType, Language, Token
 
 MASK = LabelType.to_binary_mask([LabelType.DATE])
 
@@ -11,13 +11,14 @@ def test_only_valid():
     for string in date_strings:
         tokens.append(Token(string, MASK))
 
-    parsed_dates = extract_parse_dates(tokens)
+    parsed_dates = extract_parse_dates(tokens, Language.ENGLISH)
 
     assert Token("1712", MASK) in parsed_dates
     assert Token("0707", MASK) in parsed_dates
     assert Token("01", MASK) in parsed_dates
     assert Token("89", MASK) in parsed_dates
     assert Token("0908", MASK) in parsed_dates
+    assert Token("1994", MASK) in parsed_dates
 
 
 def test_mixed():
@@ -26,10 +27,11 @@ def test_mixed():
     for string in date_strings:
         tokens.append(Token(string, MASK))
 
-    parsed_dates = extract_parse_dates(tokens)
+    parsed_dates = extract_parse_dates(tokens, Language.ENGLISH)
 
     assert Token("1612", MASK) in parsed_dates
     assert Token("0707", MASK) not in parsed_dates
+    assert Token("0706", MASK) not in parsed_dates
     assert Token("01", MASK) in parsed_dates
     assert Token("84", MASK) in parsed_dates
     assert Token("1906", MASK) in parsed_dates
@@ -42,11 +44,28 @@ def test_only_invalid():
     for string in date_strings:
         tokens.append(Token(string, MASK))
 
-    parsed_dates = extract_parse_dates(tokens)
+    parsed_dates = extract_parse_dates(tokens, Language.ENGLISH)
 
     assert parsed_dates == []
+
+
+def test_polish():
+    date_strings = ["17.12.2001", "7 maj 2001", "23 lipiec 1980", "9 august 1994"]
+    tokens = []
+    for string in date_strings:
+        tokens.append(Token(string, MASK))
+
+    parsed_dates = extract_parse_dates(tokens, Language.POLISH)
+
+    assert Token("1712", MASK) in parsed_dates
+    assert Token("0705", MASK) in parsed_dates
+    assert Token("01", MASK) in parsed_dates
+    assert Token("80", MASK) in parsed_dates
+    assert Token("2307", MASK) in parsed_dates
+    assert Token("0908", MASK) in parsed_dates
 
 
 test_only_valid()
 test_mixed()
 test_only_invalid()
+test_polish()
