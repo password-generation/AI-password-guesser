@@ -63,9 +63,3 @@ def test_polish():
     assert Token("80", MASK) in parsed_dates
     assert Token("2307", MASK) in parsed_dates
     assert Token("0908", MASK) in parsed_dates
-
-
-test_only_valid()
-test_mixed()
-test_only_invalid()
-test_polish()
