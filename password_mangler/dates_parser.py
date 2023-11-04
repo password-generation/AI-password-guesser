@@ -29,10 +29,9 @@ def extract_parse_dates(tokens: list[Token], language: Language):
 
         else:
             date_units = extract_date_units(datetime)
-            
+
         finally:
             other_tokens.update([Token(t, mask) for t in date_units])
-            print(date_units)
 
     return list(other_tokens)
 
