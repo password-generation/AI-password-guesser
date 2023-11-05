@@ -1,4 +1,4 @@
-from password_mangler.commons import LabelType, Language, Token
+from commons import LabelType, Language, Token
 from dateutil.parser import parse
 import translators as ts
 
