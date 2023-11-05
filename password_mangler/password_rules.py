@@ -145,3 +145,37 @@ def interlace(s1: str, s2: str, idxs: list[int] | None = None) -> str:
         i = j
     s3 += s1[i:]
     return s3
+
+
+GAMER_TRANSLATION = {
+    "A": "4",
+    "a": "@",
+    "B": "8",
+    "C": "(",
+    "c": "(",
+    "E": "3",
+    "e": "3",
+    "G": "6",
+    "g": "9",
+    "H": "#",
+    "h": "#",
+    "I": "1",
+    "i": "!",
+    "O": "0",
+    "o": "0",
+    "S": "$",
+    "s": "$",
+    "T": "7",
+    "t": "+",
+    "U": "v",
+    "u": "v",
+    "Z": "2",
+    "z": "2",
+}
+
+
+def gamerize(i: int, s: str):  # if we dont have a mapping we dont change the symbol
+    if i < len(s):
+        c = GAMER_TRANSLATION.get(s[i], s[i])
+        return s[:i] + c + s[i + 1 :]
+    return s

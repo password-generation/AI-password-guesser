@@ -12,10 +12,29 @@ mangling_schedule:
       - cut_end: 2
       - cut_end: 3
       - cut_end: 4
-      - overwrite_at: [0, '!']
-      - overwrite_at: [1, '!']
-      - overwrite_at: [2, '!']
-      - overwrite_at: [3, '!']
+      - gamerize: 1
+      - gamerize: 2
+      - gamerize: 3
+      - gamerize: 4
+      - gamerize: 5
+      - gamerize: 6
+    labels:
+      - PERSON
+      - ORG
+      - LOC
+      - DATE
+      - EMAIL
+      - WILDCARD
+
+  - type: unary
+    rules:
+      - nothing
+      - gamerize: 1
+      - gamerize: 2
+      - gamerize: 3
+      - gamerize: 4
+      - gamerize: 5
+      - gamerize: 6
     labels:
       - PERSON
       - ORG
@@ -36,8 +55,8 @@ mangling_schedule:
       - EMAIL
       - WILDCARD
 
-  # - type: unary
-  #   rules:
-  #     - nothing
-  #   labels:
-  #     - PERSON
+  - type: unary
+    rules:
+      - nothing
+    labels:
+      - PERSON

@@ -6,6 +6,7 @@ from commons import Language, Token
 from text_parser import *
 from results_saver import save_tokens
 from model import TemplateBasedPasswordModel
+from dates_parser import extract_parse_dates
 
 
 def guess_passwords(
@@ -37,6 +38,8 @@ def guess_passwords(
         for tok in sorted(tokens):
             print(token_to_str(tok))
     # sorted_word_count = count_and_sort_words(tokens)
+
+    tokens = extract_parse_dates(tokens, language)
 
     user_config = parse_yaml(config_file)
     tokens = mangle_tokens(user_config, tokens, wildcards_present, max_length)
