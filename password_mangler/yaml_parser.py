@@ -14,7 +14,6 @@ def parse_yaml(filename: str):
 
         rules = []
         for rule in epoch['rules']:
-            print(rule)
             if isinstance(rule, dict):
                 rule_name, parameter = next(iter(rule.items()))
                 func = getattr(password_rules, rule_name)
