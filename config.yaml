@@ -16,6 +16,8 @@ mangling_schedule:
       - overwrite_at: [1, '!']
       - overwrite_at: [2, '!']
       - overwrite_at: [3, '!']
+      - gamerize: 5 
+      - gamerize: 6
     labels:
       - PERSON
       - ORG
