@@ -1,10 +1,11 @@
 import argparse
 from file_reader import *
 from yaml_parser import parse_yaml
-from rules_applier import mangle_tokens
-from commons import Language
+from rules_applier import mangle_tokens, filter_tokens_based_on_label
+from commons import Language, Token
 from text_parser import *
 from results_saver import save_tokens
+from model import TemplateBasedPasswordModel
 from dates_parser import extract_parse_dates
 
 
@@ -46,6 +47,22 @@ def guess_passwords(
     save_tokens(tokens, output_filename)
 
     print(f"Mangled {len(tokens)} tokens")
+    if verbose:
+        for tok in sorted(tokens):
+            print(token_to_str(tok))
+
+    if not wildcards_present:
+        return
+
+    tokens = list(filter(lambda t: WILDCARD_CHAR in t.text, tokens))
+
+    model = TemplateBasedPasswordModel(10000, 0.6)
+
+    tokens = model.sample_model_based_on_templates(tokens)
+
+    save_tokens(tokens, "generate_tokens.csv")
+
+    print(f"Generated {len(tokens)} tokens")
     if verbose:
         for tok in sorted(tokens):
             print(token_to_str(tok))

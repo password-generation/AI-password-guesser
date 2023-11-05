@@ -3,6 +3,9 @@ from typing import NamedTuple
 
 
 WILDCARD_CHAR = '\t'
+CHARMAP_PATH = 'DATA/AE_char_map.pickle'
+MODEL_PATH = 'DATA/AE_based_Noise_a4_ls128_hn4_al8/'
+
 
 class MorfeuszNotAvailable(Exception):
     ...
@@ -44,6 +47,11 @@ class LabelType(Enum):
             if binary_mask & (1 << label.value):
                 labels.append(label)
         return labels
+
+    @staticmethod
+    def remove_label_from_binary_mask(label: 'LabelType', binary_mask: int) -> int:
+        label_bin = 1 << label.value
+        return binary_mask - label_bin
 
     def __str__(self):
         return self.name
