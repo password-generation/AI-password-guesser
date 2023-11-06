@@ -36,6 +36,8 @@ def test_mixed():
     assert Token("84", MASK) in parsed_dates
     assert Token("1906", MASK) in parsed_dates
     assert Token("1701", MASK) in parsed_dates
+    assert Token("2023", MASK) not in parsed_dates
+    assert Token("23", MASK) not in parsed_dates
 
 
 def test_only_invalid():
