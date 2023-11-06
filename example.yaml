@@ -1,7 +1,0 @@
-unary_rules:
-- uppercase
-- reverse
-
-binary_rules:
-- join
-- interlace

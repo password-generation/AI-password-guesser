@@ -1,0 +1,6 @@
+PyYaml
+torch
+pandas
+textract
+spacy
+nltk

@@ -1,0 +1,62 @@
+mangling_schedule:
+  - type: unary
+    rules:
+      - nothing
+      - lowercase
+      - uppercase
+      - capitalize
+      - toggle_case
+      - toggle_at: 2
+      - toggle_random
+      - cut_end: 1
+      - cut_end: 2
+      - cut_end: 3
+      - cut_end: 4
+      - gamerize: 1
+      - gamerize: 2
+      - gamerize: 3
+      - gamerize: 4
+      - gamerize: 5
+      - gamerize: 6
+    labels:
+      - PERSON
+      - ORG
+      - LOC
+      - DATE
+      - EMAIL
+      - WILDCARD
+
+  - type: unary
+    rules:
+      - nothing
+      - gamerize: 1
+      - gamerize: 2
+      - gamerize: 3
+      - gamerize: 4
+      - gamerize: 5
+      - gamerize: 6
+    labels:
+      - PERSON
+      - ORG
+      - LOC
+      - DATE
+      - EMAIL
+      - WILDCARD
+
+  - type: binary
+    rules:
+      - join
+      - interlace
+    labels:
+      - PERSON
+      - ORG
+      - LOC
+      - DATE
+      - EMAIL
+      - WILDCARD
+
+  - type: unary
+    rules:
+      - nothing
+    labels:
+      - PERSON
