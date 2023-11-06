@@ -1,13 +1,20 @@
 import textract
 import re
+import os
 
 
 def extract_text_from_file(file_path: str) -> str:
     """
-    Returns plain text read from provided file.
+    Returns plain text read from provided file or files in a directory.
     Supported extensions: pdf, odt, docx, txt
     """
-    if file_path.split(".")[-1] != "txt":
+    if os.path.isdir(file_path):
+        text = ""
+        for filename in os.listdir(file_path):
+            child_path = os.path.join(file_path, filename)
+            text += " " + extract_text_from_file(child_path)
+        return text
+    elif file_path.split(".")[-1] != "txt":
         text = textract.process(file_path).decode("utf8")
     else:
         with open(file_path, "rb") as f:
