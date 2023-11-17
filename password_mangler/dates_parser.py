@@ -1,7 +1,34 @@
 from commons import LabelType, Language, Token
 from dateutil.parser import parse
 from datetime import datetime
-import translators as ts
+
+
+polish_to_english_months = {
+    "styczeń": "january",
+    "stycznia": "january",
+    "luty": "february",
+    "lutego": "february",
+    "marzec": "march",
+    "marca": "march",
+    "kwiecień": "april",
+    "kwietnia": "april",
+    "maj": "may",
+    "maja": "may",
+    "czerwiec": "june",
+    "czerwca": "june",
+    "lipiec": "july",
+    "lipca": "july",
+    "sierpień": "august",
+    "sierpnia": "august",
+    "wrzesień": "september",
+    "września": "september",
+    "październik": "october",
+    "października": "october",
+    "listopad": "november",
+    "listopada": "november",
+    "grudzień": "december",
+    "grudnia": "december"
+}
 
 
 def extract_parse_dates(tokens: list[Token], language: Language):
@@ -19,10 +46,17 @@ def extract_parse_dates(tokens: list[Token], language: Language):
 
         except ValueError:
             if language == Language.POLISH:
-                text = ts.translate_text(text, from_language="pl", to_language="en")
+                date_parts = text.split()
+                translated = []
+                for part in date_parts:
+                    if part in polish_to_english_months.keys():
+                        translated.append(polish_to_english_months[part])
+                    else:
+                        translated.append(part)
+                translated = ' '.join(translated)
 
                 try:
-                    date_units = process_date_units(text)
+                    date_units = process_date_units(translated)
                 except ValueError:
                     continue  # not a valid datetime format to parse, we skip it
 
