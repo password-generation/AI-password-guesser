@@ -5,7 +5,7 @@ from rules_applier import mangle_tokens, filter_tokens_based_on_label
 from commons import Language, Token
 from text_parser import *
 from results_saver import save_tokens
-from model import TemplateBasedPasswordModel
+from template_model import TemplateBasedPasswordModel
 from dates_parser import extract_parse_dates
 
 
