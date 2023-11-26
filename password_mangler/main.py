@@ -1,11 +1,10 @@
-import argparse
+from argparse import ArgumentParser
 from file_reader import *
 from yaml_parser import parse_yaml
 from rules_applier import mangle_tokens, filter_tokens_based_on_label
 from commons import Language, Token
 from text_parser import *
 from results_saver import save_tokens
-from model import TemplateBasedPasswordModel, tokens_to_seeds
 from dates_parser import extract_parse_dates
 from copy import deepcopy
 from unidecode import unidecode
@@ -59,6 +58,7 @@ def guess_passwords(
         return
 
     # Generating new tokens using AI
+    from model import TemplateBasedPasswordModel, tokens_to_seeds
     seeds = tokens_to_seeds(base_tokens, max_length)
     samples_count = 10
     std_dev = 0.05 
@@ -88,8 +88,8 @@ def read_evidence(evidence_files: list[str], language: Language) -> list[Token]:
     return tokens
 
 
-def create_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
+def create_parser() -> ArgumentParser:
+    parser = ArgumentParser(
         prog="password_guessing.py",
         description="This program generates a dictionary of passwords using the provided evidence."
                      "Currently supported evidence formats are: .txt, .pdf, .docx, .odt",

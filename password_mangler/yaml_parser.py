@@ -1,4 +1,4 @@
-import yaml
+from yaml import safe_load
 from functools import partial
 from commons import ManglingEpochType, LabelType
 import password_rules
@@ -6,7 +6,7 @@ import password_rules
 
 def parse_yaml(filename: str):
     with open(filename, "r") as file:
-        user_config = yaml.safe_load(file)
+        user_config = safe_load(file)
 
     for epoch in user_config['mangling_schedule']:
         epoch['type'] = ManglingEpochType.UNARY if epoch['type'] == 'unary'\

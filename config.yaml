@@ -7,7 +7,6 @@ mangling_schedule:
       - capitalize
       - toggle_case
       - toggle_at: 2
-      - toggle_random
       - cut_end: 1
       - cut_end: 2
       - cut_end: 3

@@ -1,4 +1,7 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import tensorflow._api.v2.compat.v1 as tf
+tf.logging.set_verbosity(tf.logging.ERROR)
 import tensorflow_hub as hub
 import numpy as np
 import pickle
@@ -6,7 +9,7 @@ from itertools import combinations
 from copy import copy
 from commons import Token, LabelType
 from commons import WILDCARD_CHAR, CHARMAP_PATH, MODEL_PATH
-from rules_applier import apply_binary_rules_to_tokens, BinStrRule
+from rules_applier import apply_binary_rules_to_tokens
 from password_rules import join as join_rule
 
 

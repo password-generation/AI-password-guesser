@@ -1,6 +1,3 @@
-from random import randint
-
-
 def nothing(s: str) -> str:
     return s
 
@@ -29,10 +26,6 @@ def toggle_at(i: int, s: str) -> str:
     if i < len(s):
         return s[:i] + s[i].swapcase() + s[i + 1 :]
     return s
-
-
-def toggle_random(s: str) -> str:
-    return toggle_at(randint(0, len(s) - 1), s)
 
 
 def reverse(s: str) -> str:
