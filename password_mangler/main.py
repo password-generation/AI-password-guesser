@@ -8,6 +8,7 @@ from results_saver import save_tokens
 from model import TemplateBasedPasswordModel, tokens_to_seeds
 from dates_parser import extract_parse_dates
 from copy import deepcopy
+from unidecode import unidecode
 
 
 def guess_passwords(
@@ -41,7 +42,11 @@ def guess_passwords(
     # Date parsing
     tokens = extract_parse_dates(tokens, language)
     base_tokens = deepcopy(tokens)
-    
+
+    # Replacing polish specific letters with english equivalents
+    if language == Language.POLISH:
+        tokens = [ Token(unidecode(token.text), token.binary_mask) for token in tokens ]
+
     # Mangling of the tokens
     user_config = parse_yaml(config_file)
     tokens = mangle_tokens(user_config, tokens, False, max_length)

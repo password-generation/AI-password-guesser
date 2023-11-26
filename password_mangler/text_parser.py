@@ -4,16 +4,8 @@ from commons import Language, LabelType
 from collections import Counter
 import spacy
 import nltk
-from nltk.corpus import stopwords
 from commons import *
-
-
-MORFEUSZ_AVAILABLE = True
-try:
-    import morfeusz2
-except ImportError:
-    print("morfeusz can't be imported - polish lang is unavailable")
-    MORFEUSZ_AVAILABLE = False
+from transformers import pipeline
 
 
 # BEFORE YOU RUN THIS CODE:
@@ -62,13 +54,16 @@ def recognize_data_strings(text: str, language: Language) -> list[Token]:
     Returns list of strings containing data recognized as important
     such as dates, organization names, people's names and surnames and others.
     """
+    from nltk.corpus import stopwords
     tokens: list[str] = []
     if language == Language.ENGLISH:
         model = "en_core_web_lg"
         stop_words = set(stopwords.words("english"))
     elif language == Language.POLISH:
         model = "pl_core_news_lg"
-        stop_words = set(stopwords.words("polish"))
+        stopword_file = open('./DATA/stopwords-pl.txt', 'r', encoding='utf8')
+        stopwords = stopword_file.read().splitlines()
+        stop_words = set(stopwords)
 
     nlp = spacy.load(model)
     important_text = nlp(text)
@@ -108,18 +103,12 @@ def lemmatize_tokens(tokens: list[Token], language: Language) -> list[Token]:
             tokens[i] = Token(lemmatized_text, token.binary_mask)
         return tokens
     elif language == Language.POLISH:
-        raise NotImplementedError("Polish lemmatization is not implemented")
-        if not MORFEUSZ_AVAILABLE:
-            raise MorfeuszNotAvailable()
-        morf = morfeusz2.Morfeusz()
-        last_i = -1
-        lemmatized_words = []
-        for i, _, interp in morf.analyse(" ".join(words)):
-            # using last_i number to only save the first interpretation of a word
-            if last_i < i:
-                lemmatized_words.append(interp[1].split(":")[0])
-                last_i = i
-        return lemmatized_words
+        # If run for the first time it will start downloading the model (in the final product we should handle that earlier)
+        pipe = pipeline(task="text2text-generation", model="amu-cai/polemma-large", tokenizer="amu-cai/polemma-large", max_new_tokens=3)
+        lemmatized_words = [res['generated_text'] for res in pipe([token.text for token in tokens], clean_up_tokenization_spaces=True, num_beams=3)]
+        for i, lemmatized_word in enumerate(lemmatized_words):
+            tokens[i] = Token(lemmatized_word, tokens[i].binary_mask)
+        return tokens
 
 
 def email_to_token(match: re.Match[str]) -> list[Token]:
@@ -178,10 +167,8 @@ if __name__ == "__main__":
 
     # Lemmatiziation and couting of words
     words = text.split()
-    # try:
-    #     lemmatized_words = lemmatize_tokens(words, Language.POLISH)
-    # except MorfeuszNotAvailable as _:
-    #     print("Can't lemmatize in polish because morfeusz is not available")
+    # lemmatized_words = lemmatize_tokens(words, Language.POLISH)
+   
 
     # sorted_word_count = count_and_sort_words(words)
     # print(sorted_word_count)

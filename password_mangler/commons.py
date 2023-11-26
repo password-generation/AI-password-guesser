@@ -7,9 +7,6 @@ CHARMAP_PATH = 'DATA/AE_char_map.pickle'
 MODEL_PATH = 'DATA/AE_based_Noise_a4_ls128_hn4_al8/'
 
 
-class MorfeuszNotAvailable(Exception):
-    ...
-
 class NotSupportedLabelType(Exception):
     ...
 
