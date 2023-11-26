@@ -54,10 +54,7 @@ if __name__ == "__main__":
 
     # Lemmatiziation and couting of words
     words = text.split()
-    # try:
-    #     lemmatized_words = lemmatize_tokens(words, Language.POLISH)
-    # except MorfeuszNotAvailable as _:
-    #     print("Can't lemmatize in polish because morfeusz is not available")
+    # lemmatized_words = lemmatize_tokens(words, Language.POLISH)
 
     sorted_word_count = count_and_sort_words(words)
     save_sorted_words(sorted_word_count, "sorted_tokens_test.csv")

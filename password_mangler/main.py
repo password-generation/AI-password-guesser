@@ -7,6 +7,7 @@ from text_parser import *
 from results_saver import save_tokens
 from model import TemplateBasedPasswordModel
 from dates_parser import extract_parse_dates
+from unidecode import unidecode
 
 
 def guess_passwords(
@@ -40,6 +41,10 @@ def guess_passwords(
     # sorted_word_count = count_and_sort_words(tokens)
 
     tokens = extract_parse_dates(tokens, language)
+
+    if language == Language.POLISH:
+        # Replacing polish specific letters with english equivalents
+        tokens = [ Token(unidecode(token.text), token.binary_mask) for token in tokens ]
 
     user_config = parse_yaml(config_file)
     tokens = mangle_tokens(user_config, tokens, wildcards_present, max_length)
