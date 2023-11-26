@@ -1,3 +1,6 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
 from argparse import ArgumentParser
 from file_reader import *
 from yaml_parser import parse_yaml
