@@ -3,6 +3,7 @@ tf.logging.set_verbosity(tf.logging.ERROR)
 import tensorflow_hub as hub
 import numpy as np
 import pickle
+from tqdm import tqdm
 from itertools import combinations
 from copy import copy
 from commons import Token, LabelType
@@ -84,7 +85,7 @@ class TemplateBasedPasswordModel:
         with tf.Session() as sess:
             sess.run(tf.initialize_all_variables())
 
-            for template in templates:
+            for template in tqdm(templates, desc='Generating tokens'):
                 template_as_vector = self.template2vector(template.text)
                 samples = sess.run(self.prediction_tensor,
                                    {self.x_placeholder: template_as_vector})
