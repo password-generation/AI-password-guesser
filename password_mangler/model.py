@@ -2,8 +2,12 @@ import tensorflow._api.v2.compat.v1 as tf
 import tensorflow_hub as hub
 import numpy as np
 import pickle
+from itertools import combinations
+from copy import copy
 from commons import Token, LabelType
 from commons import WILDCARD_CHAR, CHARMAP_PATH, MODEL_PATH
+from rules_applier import apply_binary_rules_to_tokens, BinStrRule
+from password_rules import join as join_rule
 
 
 class TemplateBasedPasswordModel:
@@ -96,3 +100,29 @@ class TemplateBasedPasswordModel:
                 produced_tokens.extend(new_tokens)
 
         return produced_tokens
+
+def poke_holes_in_tokens(tokens: list[Token]) -> list[Token]:
+    wildcard_binary_mask = 1 << LabelType.WILDCARD.value
+    tokens_with_holes = []
+    for token in tokens:
+        # Without holes
+        tokens_with_holes.append(token)
+        # With one hole
+        for i in range(len(token)):
+            tokens_with_holes.append(Token(token.text[:i] + WILDCARD_CHAR + token.text[i + 1 :], token.binary_mask | wildcard_binary_mask))
+        # With two holes
+        comb = combinations(list(range(len(token.text))), 2)
+        for i, j in comb:
+            token_text_list = list(copy(token.text))
+            token_text_list[i] = WILDCARD_CHAR
+            token_text_list[j] = WILDCARD_CHAR
+            tokens_with_holes.append(Token(''.join(token_text_list), token.binary_mask | wildcard_binary_mask))
+    return tokens_with_holes
+
+def tokens_to_seeds(tokens, max_length) -> list[Token]:
+    wildcard_binary_mask = 1 << LabelType.WILDCARD.value
+    wildcard_tokens = [Token(WILDCARD_CHAR * n, wildcard_binary_mask)
+              for n in range(1, 5)]
+    tokens_with_holes = poke_holes_in_tokens(tokens)
+    mangled_tokens = apply_binary_rules_to_tokens([join_rule], tokens_with_holes + wildcard_tokens, max_length)
+    return mangled_tokens

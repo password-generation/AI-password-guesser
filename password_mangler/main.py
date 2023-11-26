@@ -5,8 +5,9 @@ from rules_applier import mangle_tokens, filter_tokens_based_on_label
 from commons import Language, Token
 from text_parser import *
 from results_saver import save_tokens
-from model import TemplateBasedPasswordModel
+from model import TemplateBasedPasswordModel, tokens_to_seeds
 from dates_parser import extract_parse_dates
+from copy import deepcopy
 from unidecode import unidecode
 
 
@@ -19,7 +20,8 @@ def guess_passwords(
     wildcards_present: bool,
     verbose: bool,
 ) -> None:
-    # Printing arguments
+    
+    # Printing program arguments
     print(f"Generating passwords of max length {max_length}")
     print(f"Output file: {output_filename}")
     print(f"Evidence files: {evidence_files}")
@@ -31,46 +33,47 @@ def guess_passwords(
     tokens = read_evidence(evidence_files, language)
     tokens = lemmatize_tokens(tokens, language)
     tokens = merge_token_duplicates(tokens)
-
     save_tokens(tokens, "extracted_tokens.csv")
-
     print(f"Extracted {len(tokens)} tokens")
     if verbose:
         for tok in sorted(tokens):
             print(token_to_str(tok))
-    # sorted_word_count = count_and_sort_words(tokens)
 
+    # Date parsing
     tokens = extract_parse_dates(tokens, language)
+    base_tokens = deepcopy(tokens)
 
+    # Replacing polish specific letters with english equivalents
     if language == Language.POLISH:
-        # Replacing polish specific letters with english equivalents
         tokens = [ Token(unidecode(token.text), token.binary_mask) for token in tokens ]
 
+    # Mangling of the tokens
     user_config = parse_yaml(config_file)
-    tokens = mangle_tokens(user_config, tokens, wildcards_present, max_length)
-
-    save_tokens(tokens, output_filename)
-
+    tokens = mangle_tokens(user_config, tokens, False, max_length)
+    save_tokens(tokens, "mangled_tokens.csv")
     print(f"Mangled {len(tokens)} tokens")
     if verbose:
         for tok in sorted(tokens):
             print(token_to_str(tok))
-
     if not wildcards_present:
         return
 
-    tokens = list(filter(lambda t: WILDCARD_CHAR in t.text, tokens))
-
-    model = TemplateBasedPasswordModel(10000, 0.6)
-
-    tokens = model.sample_model_based_on_templates(tokens)
-
-    save_tokens(tokens, "generate_tokens.csv")
-
-    print(f"Generated {len(tokens)} tokens")
+    # Generating new tokens using AI
+    seeds = tokens_to_seeds(base_tokens, max_length)
+    samples_count = 10
+    std_dev = 0.05 
+    print(f"seed_count={len(seeds)}, {samples_count=}, {std_dev=}")
+    model = TemplateBasedPasswordModel(samples_count, std_dev)
+    generated_tokens = model.sample_model_based_on_templates(seeds)
+    save_tokens(tokens, "generated_tokens.csv")
+    print(f"Generated {len(generated_tokens)} tokens")
     if verbose:
-        for tok in sorted(tokens):
+        for tok in sorted(generated_tokens):
             print(token_to_str(tok))
+
+    # Cutting out duplicates and saving the complete password list
+    save_tokens(merge_token_duplicates(tokens+generated_tokens), output_filename)
+    print(f"Saved {len(tokens+generated_tokens)} passwords to {output_filename} file")
 
 
 def read_evidence(evidence_files: list[str], language: Language) -> list[Token]:
