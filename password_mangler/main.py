@@ -7,6 +7,7 @@ from text_parser import *
 from results_saver import save_tokens
 from template_model import TemplateBasedPasswordModel
 from dates_parser import extract_parse_dates
+from ner_model import NERModel
 
 
 def guess_passwords(
@@ -28,7 +29,7 @@ def guess_passwords(
     # Gathering tokens from the evidence files
     language = Language.ENGLISH if arg_language == "EN" else Language.POLISH
     tokens = read_evidence(evidence_files, language)
-    tokens = lemmatize_tokens(tokens, language)
+    # tokens = lemmatize_tokens(tokens, language)
     tokens = merge_token_duplicates(tokens)
 
     save_tokens(tokens, "extracted_tokens.csv")
@@ -70,12 +71,16 @@ def guess_passwords(
 
 def read_evidence(evidence_files: list[str], language: Language) -> list[Token]:
     tokens = []
+    ner_model = NERModel(language)
+
     for file_name in evidence_files:
         text = extract_text_from_file(file_name)
+        # print(text)
         tokens += recognize_email_addresses(text)
 
-        text = clear_text(text)
-        tokens += recognize_data_strings(text, language)
+        # text = clear_text(text)
+
+        tokens += ner_model.recognize_tokens(text)
 
     return tokens
 

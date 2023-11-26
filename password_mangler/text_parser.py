@@ -24,20 +24,6 @@ except ImportError:
 # python -m spacy download en_core_web_lg
 
 
-def parse_label(text: str) -> LabelType:
-    match text:
-        case "PERSON" | "persName":
-            return LabelType.PERSON
-        case "ORG" | "orgName":
-            return LabelType.ORG
-        case "LOC" | "geogName" | "placeName":
-            return LabelType.LOC
-        case "DATE" | "date":
-            return LabelType.DATE
-        case _:
-            raise NotSupportedLabelType(text)
-
-
 def parse_text_to_tokens(
     text: str, label: LabelType, stopwords: set[str]
 ) -> list[Token]:
@@ -74,7 +60,7 @@ def recognize_data_strings(text: str, language: Language) -> list[Token]:
     important_text = nlp(text)
     for ent in important_text.ents:
         try:
-            label = parse_label(ent.label_)
+            label = LabelType.parse_label(ent.label_)
             new_tokens = parse_text_to_tokens(ent.text, label, stop_words)
             tokens.extend(new_tokens)
         except NotSupportedLabelType as e:

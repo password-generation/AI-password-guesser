@@ -59,6 +59,20 @@ class LabelType(Enum):
     def __repr__(self):
         return str(self)
 
+    @staticmethod
+    def parse_label(text: str) -> 'LabelType':
+        match text:
+            case "PERSON" | "persName" | "PER":
+                return LabelType.PERSON
+            case "ORG" | "orgName":
+                return LabelType.ORG
+            case "LOC" | "geogName" | "placeName":
+                return LabelType.LOC
+            case "DATE" | "date":
+                return LabelType.DATE
+            case _:
+                raise NotSupportedLabelType(text)
+
 
 class ManglingEpochType(Enum):
     UNARY = 1
