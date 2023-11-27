@@ -3,7 +3,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 from argparse import ArgumentParser
 from file_reader import *
-from yaml_parser import parse_yaml
+from yaml_parser import get_model_props_from_config, parse_yaml
 from rules_applier import mangle_tokens, filter_tokens_based_on_label
 from commons import Language, Token
 from text_parser import *
@@ -63,8 +63,7 @@ def guess_passwords(
     # Generating new tokens using AI
     from model import TemplateBasedPasswordModel, tokens_to_seeds
     seeds = tokens_to_seeds(base_tokens, max_length)
-    samples_count = 10
-    std_dev = 0.05 
+    std_dev, samples_count = get_model_props_from_config(config_file)
     print(f"seed_count={len(seeds)}, {samples_count=}, {std_dev=}")
     model = TemplateBasedPasswordModel(samples_count, std_dev)
     generated_tokens = model.sample_model_based_on_templates(seeds)

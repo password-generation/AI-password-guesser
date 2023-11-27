@@ -34,3 +34,9 @@ def parse_yaml(filename: str):
         epoch['labels'] = labels
 
     return user_config
+
+
+def get_model_props_from_config(filename: str):
+    with open(filename, "r") as file:
+        user_config = safe_load(file)
+    return user_config['std_dev'], user_config['samples_count']

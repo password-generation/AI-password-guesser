@@ -1,3 +1,6 @@
+std_dev: 0.05
+samples_count: 10
+
 mangling_schedule:
   - type: unary
     rules:
