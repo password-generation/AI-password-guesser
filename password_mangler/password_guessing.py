@@ -7,7 +7,7 @@ from yaml_parser import get_model_props_from_config, parse_yaml
 from rules_applier import mangle_tokens, filter_tokens_based_on_label
 from commons import Language, Token
 from text_parser import *
-from results_saver import save_tokens
+from results_saver import save_result_to_txt, save_tokens
 from dates_parser import extract_parse_dates
 from copy import deepcopy
 from unidecode import unidecode
@@ -74,8 +74,10 @@ def guess_passwords(
             print(token_to_str(tok))
 
     # Cutting out duplicates and saving the complete password list
-    save_tokens(merge_token_duplicates(tokens+generated_tokens), output_filename)
-    print(f"Saved {len(tokens+generated_tokens)} passwords to {output_filename} file")
+    # save_tokens(merge_token_duplicates(tokens+generated_tokens), output_filename)
+    # print(f"Saved {len(tokens+generated_tokens)} passwords to {output_filename} file")
+    save_result_to_txt(merge_token_duplicates(tokens+generated_tokens), output_filename)
+    print(f"Saved result with {len(tokens+generated_tokens)} passwords to {output_filename} file")
 
 
 def read_evidence(evidence_files: list[str], language: Language) -> list[Token]:
@@ -93,7 +95,7 @@ def read_evidence(evidence_files: list[str], language: Language) -> list[Token]:
 def create_parser() -> ArgumentParser:
     parser = ArgumentParser(
         prog="password_guessing.py",
-        description="This program generates a dictionary of passwords using the provided evidence."
+        description="This program generates a dictionary of passwords using the provided evidence. "
                      "Currently supported evidence formats are: .txt, .pdf, .docx, .odt",
     )
     parser.add_argument(

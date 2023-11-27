@@ -20,6 +20,18 @@ def save_tokens(tokens: list[Token], file_name: str) -> None:
     df = pd.DataFrame(data)
     df.to_csv(f"./output/{file_name}")
 
+def save_result_to_txt(tokens: list[Token], file_name: str) -> None:
+    """
+    Saves result wordlist in txt format
+    """
+    # Creating output folder if it does not exist
+    if not os.path.exists("./output"):
+        os.makedirs("./output")
+    # Saving the result passwords
+    tokens = sorted(tokens)
+    with open(f"./output/{file_name}", "w") as file:
+        file.writelines([token.text + "\n" for token in tokens])
+
 
 def save_sorted_words(sorted_words: list[tuple[str, int]], file_name: str) -> None:
     """
