@@ -53,6 +53,7 @@ def recognize_data_strings(text: str, language: Language) -> list[Token]:
     """
     from spacy import load as spacy_load
     from nltk.corpus import stopwords
+
     tokens: list[str] = []
     if language == Language.ENGLISH:
         model = "en_core_web_lg"
@@ -95,6 +96,7 @@ def lemmatize_tokens(tokens: list[Token], language: Language) -> list[Token]:
     """
     if language == Language.ENGLISH:
         from nltk import WordNetLemmatizer
+
         lemmatizer = WordNetLemmatizer()
         for i, token in enumerate(tokens):
             text = token.text
@@ -104,8 +106,22 @@ def lemmatize_tokens(tokens: list[Token], language: Language) -> list[Token]:
     elif language == Language.POLISH:
         # If run for the first time it will start downloading the model (in the final product we should handle that earlier)
         from transformers import pipeline
-        pipe = pipeline(task="text2text-generation", model="amu-cai/polemma-large", tokenizer="amu-cai/polemma-large", max_new_tokens=3)
-        lemmatized_words = [res['generated_text'] for res in pipe([token.text for token in tokens], clean_up_tokenization_spaces=True, num_beams=3)]
+
+        pipe = pipeline(
+            task="text2text-generation",
+            model="amu-cai/polemma-large",
+            tokenizer="amu-cai/polemma-large",
+            max_new_tokens=3
+        )
+
+        lemmatized_words = [
+            res['generated_text']
+            for res in pipe(
+                [token.text for token in tokens],
+                clean_up_tokenization_spaces=True,
+                num_beams=3)
+        ]
+
         for i, lemmatized_word in enumerate(lemmatized_words):
             tokens[i] = Token(lemmatized_word, tokens[i].binary_mask)
         return tokens
@@ -168,7 +184,7 @@ if __name__ == "__main__":
     # Lemmatiziation and couting of words
     words = text.split()
     # lemmatized_words = lemmatize_tokens(words, Language.POLISH)
-   
+
 
     # sorted_word_count = count_and_sort_words(words)
     # print(sorted_word_count)
