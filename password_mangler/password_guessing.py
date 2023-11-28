@@ -58,6 +58,8 @@ def guess_passwords(
         for tok in sorted(tokens):
             print(token_to_str(tok))
     if not wildcards_present:
+        save_result_to_txt(tokens, output_filename)
+        print(f"Saved result with {len(tokens)} passwords to {output_filename} file")
         return
 
     # Generating new tokens using AI
