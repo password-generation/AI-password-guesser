@@ -111,8 +111,8 @@ def create_parser() -> ArgumentParser:
         "-o",
         "--output",
         type=str,
-        help="Output file with mangled tokens",
-        default="mangled_tokens.csv",
+        help="Output file with result passwords",
+        default="out.txt",
     )
     parser.add_argument(
         "-l",
