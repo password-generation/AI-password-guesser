@@ -1,6 +1,5 @@
-from textract import process as textract_process
 import re
-from os import path, listdir
+import os
 
 
 def extract_text_from_file(file_path: str) -> str:
@@ -8,10 +7,12 @@ def extract_text_from_file(file_path: str) -> str:
     Returns plain text read from provided file or files in a directory.
     Supported extensions: pdf, odt, docx, txt
     """
-    if path.isdir(file_path):
+    from textract import process as textract_process
+
+    if os.path.isdir(file_path):
         text = ""
-        for filename in listdir(file_path):
-            child_path = path.join(file_path, filename)
+        for filename in os.listdir(file_path):
+            child_path = os.path.join(file_path, filename)
             text += " " + extract_text_from_file(child_path)
         return text
     elif file_path.split(".")[-1] != "txt":

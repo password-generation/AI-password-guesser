@@ -2,11 +2,12 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 from argparse import ArgumentParser
-from file_reader import *
+from file_reader import extract_text_from_file, clear_text
 from yaml_parser import get_model_props_from_config, parse_yaml
-from rules_applier import mangle_tokens, filter_tokens_based_on_label
-from commons import Language, Token
-from text_parser import *
+from rules_applier import mangle_tokens
+from commons import Language, Token, token_to_str
+from text_parser import recognize_data_strings, merge_token_duplicates, \
+    lemmatize_tokens, recognize_email_addresses
 from results_saver import save_result_to_txt, save_tokens
 from dates_parser import extract_parse_dates
 from copy import deepcopy

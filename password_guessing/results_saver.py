@@ -1,5 +1,4 @@
 import os
-import pandas as pd
 from commons import LabelType, Token
 
 
@@ -7,6 +6,7 @@ def save_tokens(tokens: list[Token], file_name: str) -> None:
     """
     Saves important tokens in csv format into ./output/file_name.csv
     """
+    import pandas as pd
     # Creating output folder if it does not exist
     if not os.path.exists("./output"):
         os.makedirs("./output")
@@ -37,6 +37,7 @@ def save_sorted_words(sorted_words: list[tuple[str, int]], file_name: str) -> No
     """
     Saves sorted words in csv format into ./output/file_name.csv
     """
+    import pandas as pd
     # Creating output folder if it does not exist
     if not os.path.exists("./output"):
         os.makedirs("./output")

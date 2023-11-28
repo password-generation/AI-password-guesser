@@ -1,6 +1,6 @@
 from typing import Callable
 from password_rules import *
-from commons import *
+from commons import LabelType, ManglingEpochType, FilterType, Token, WILDCARD_CHAR
 
 
 UnStrRule = Callable[[str], str]

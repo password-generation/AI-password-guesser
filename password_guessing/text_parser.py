@@ -1,10 +1,8 @@
 import re
-import nltk
-from spacy_download import load_spacy
 from collections import defaultdict
 from commons import Language, LabelType
 from collections import Counter
-from commons import *
+from commons import NotSupportedLabelType, Language, LabelType, Token
 
 
 def parse_label(text: str) -> LabelType:
@@ -45,6 +43,8 @@ def recognize_data_strings(text: str, language: Language) -> list[Token]:
     Returns list of strings containing data recognized as important
     such as dates, organization names, people's names and surnames and others.
     """
+    from spacy_download import load_spacy
+    import nltk
     try:
         from nltk.corpus import stopwords
     except:
@@ -91,6 +91,7 @@ def lemmatize_tokens(tokens: list[Token], language: Language) -> list[Token]:
     Creates a list of lemmatized words based on provided list of strings (words).
     """
     if language == Language.ENGLISH:
+        import nltk
         try:
             from nltk import WordNetLemmatizer
         except:
