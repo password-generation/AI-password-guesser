@@ -1,4 +1,5 @@
 from typing import Callable
+from tqdm import tqdm
 from password_rules import *
 from commons import *
 
@@ -11,6 +12,7 @@ def apply_unary_rules_to_tokens(
     rules: list[UnStrRule],
     tokens: set[Token],
     max_length: int,
+    progress_bar,
 ) -> set[Token]:
     tokens_after_applying_rules = set[Token]()
     for token in tokens:
@@ -21,6 +23,7 @@ def apply_unary_rules_to_tokens(
 
             new_token = Token(new_string, token.binary_mask)
             tokens_after_applying_rules.add(new_token)
+            progress_bar.update()
 
     return tokens_after_applying_rules
 
@@ -29,6 +32,7 @@ def apply_binary_rules_to_tokens(
     rules: list[BinStrRule],
     tokens: set[Token],
     max_length: int,
+    progress_bar=None,
 ) -> set[Token]:
     strings_after_applying_rules = set[Token]()
     for token1 in tokens:
@@ -43,6 +47,8 @@ def apply_binary_rules_to_tokens(
                 new_binary_mask = token1.binary_mask | token2.binary_mask
                 new_token = Token(new_string, new_binary_mask)
                 strings_after_applying_rules.add(new_token)
+                if progress_bar:
+                    progress_bar.update()
 
     return strings_after_applying_rules
 
@@ -61,9 +67,11 @@ def mangle_tokens(
     max_length: int = 8,
 ) -> list[Token]:
     mangled_tokens: set[Token] = set(tokens)
-    for epoch in user_config['mangling_schedule']:
+    epochs = user_config['mangling_schedule']
+    for i, epoch in enumerate(epochs):
         if wildcard:
             mangled_tokens |= generate_wildcard_tokens(max_length)
+
 
         mangled_tokens = filter_tokens_based_on_label(
             mangled_tokens, epoch['labels'], FilterType.OR)
@@ -71,11 +79,20 @@ def mangle_tokens(
 
         rules = epoch['rules']
         if epoch['type'] == ManglingEpochType.UNARY:
+            total_num = len(mangled_tokens) * len(rules)
+            progress_bar = tqdm(desc=f'[{i+1}/{len(epochs)}]  Unary mangling epoch',
+                                total=total_num)
+
             mangled_tokens = apply_unary_rules_to_tokens(rules, mangled_tokens,
-                                                         max_length)
+                                                         max_length, progress_bar)
+            progress_bar.close()
         elif epoch['type'] == ManglingEpochType.BINARY:
+            total_num = len(rules) * len(mangled_tokens) * len(mangled_tokens)
+            progress_bar = tqdm(desc=f'[{i+1}/{len(epochs)}] Binary mangling epoch',
+                                total=total_num)
             mangled_tokens = apply_binary_rules_to_tokens(rules, mangled_tokens,
-                                                          max_length)
+                                                          max_length, progress_bar)
+            progress_bar.close()
 
     return list(mangled_tokens)
 
