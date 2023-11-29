@@ -1,4 +1,5 @@
 import re
+from tqdm import tqdm
 from collections import defaultdict
 from commons import Language, LabelType
 from collections import Counter
@@ -73,7 +74,7 @@ def tokenize_text(text: str, language: Language, user_config: dict) -> list[Toke
 
 def merge_token_duplicates(tokens: list[Token]) -> list[Token]:
     token_dict = defaultdict[str, int](int)
-    for token in tokens:
+    for token in tqdm(tokens, desc='Merging tokens'):
         text = token.text
         binary_mask = token.binary_mask
         token_dict[text] |= binary_mask
