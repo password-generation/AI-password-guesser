@@ -29,31 +29,42 @@ def guess_passwords(
     print(f"Output file: {output_filename}")
     print(f"Evidence files: {evidence_files}")
     print(f"Language: {arg_language}")
-    print(f"Password mangling {'not ' if not mangle else ''}present")
-    print(f"Password generating {'not ' if not generate else ''}present")
+    print(f"Will {'not ' if not mangle else ''}mangle passwords")
+    print(f"Will {'not ' if not generate else ''}generate passwords")
 
     # Gathering tokens from the evidence files
     language = Language.ENGLISH if arg_language == "EN" else Language.POLISH
+
+    print("Reading evidence...")
     tokens = read_evidence(evidence_files, language)
+
+    print("Lemmatizing tokens...")
     tokens = lemmatize_tokens(tokens, language)
+
+    print("Merging duplicates...")
     tokens = merge_token_duplicates(tokens)
+
     save_tokens(tokens, "extracted_tokens.csv")
+
     print(f"Extracted {len(tokens)} tokens")
     if verbose:
         for tok in sorted(tokens):
             print(token_to_str(tok))
 
-    # Date parsing
-    tokens = extract_parse_dates(tokens, language)
-    base_tokens = deepcopy(tokens)
+    if mangle or generate:
+        # Date parsing
+        tokens = extract_parse_dates(tokens, language)
+        base_tokens = deepcopy(tokens)
 
-    # Replacing polish specific letters with english equivalents
-    if language == Language.POLISH:
-        tokens = [Token(unidecode(token.text), token.binary_mask) for token in tokens]
+        # Replacing polish specific letters with english equivalents
+        if language == Language.POLISH:
+            tokens = [Token(unidecode(token.text), token.binary_mask) for token in tokens]
 
     # Mangling of the tokens
     if mangle:
         user_config = parse_yaml(config_file)
+
+        print("Mangling tokens...")
         tokens = mangle_tokens(user_config, tokens, False, max_length)
         save_tokens(tokens, "mangled_tokens.csv")
         print(f"Mangled {len(tokens)} tokens")
@@ -70,11 +81,15 @@ def guess_passwords(
 
     # Generating new tokens using AI
     if generate:
+        print("Generating passwords...")
         from model import TemplateBasedPasswordModel, tokens_to_seeds
 
         seeds = tokens_to_seeds(base_tokens, max_length)
         std_dev, samples_count = get_model_props_from_config(config_file)
-        print(f"seed_count={len(seeds)}, {samples_count=}, {std_dev=}")
+
+        print(f"Number of tokens entering password generator: {len(seeds)}")
+        print(f"For every token generator will generate at most {samples_count} passwords")
+
         model = TemplateBasedPasswordModel(samples_count, std_dev)
         generated_tokens = model.sample_model_based_on_templates(seeds)
         save_tokens(generated_tokens, "generated_tokens.csv")
@@ -102,13 +117,13 @@ def guess_passwords(
 
 
 def read_evidence(evidence_files: list[str], language: Language) -> list[Token]:
-    tokens = []
+    text = ""
     for file_name in evidence_files:
-        text = extract_text_from_file(file_name)
-        tokens += recognize_email_addresses(text)
+        text = text + " " + clear_text(extract_text_from_file(file_name))
 
-        text = clear_text(text)
-        tokens += recognize_data_strings(text, language)
+    tokens = recognize_email_addresses(text)
+    print("Tokenizing text...")
+    tokens += recognize_data_strings(text, language)
 
     return tokens
 

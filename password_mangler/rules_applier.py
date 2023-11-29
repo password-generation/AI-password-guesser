@@ -15,15 +15,18 @@ def apply_unary_rules_to_tokens(
     progress_bar,
 ) -> set[Token]:
     tokens_after_applying_rules = set[Token]()
-    for token in tokens:
-        for rule in rules:
-            new_string = rule(token.text)
-            if len(new_string) > max_length:
-                new_string = new_string[:max_length]
+    try:
+        for token in tokens:
+            for rule in rules:
+                new_string = rule(token.text)
+                if len(new_string) > max_length:
+                    new_string = new_string[:max_length]
 
-            new_token = Token(new_string, token.binary_mask)
-            tokens_after_applying_rules.add(new_token)
-            progress_bar.update()
+                new_token = Token(new_string, token.binary_mask)
+                tokens_after_applying_rules.add(new_token)
+                progress_bar.update()
+    except KeyboardInterrupt:
+        print("Early stopping")
 
     return tokens_after_applying_rules
 
@@ -35,20 +38,23 @@ def apply_binary_rules_to_tokens(
     progress_bar=None,
 ) -> set[Token]:
     strings_after_applying_rules = set[Token]()
-    for token1 in tokens:
-        for token2 in tokens:
-            if token1.text == token2.text:
-                continue
-            for rule in rules:
-                new_string = rule(token1.text, token2.text)
-                if len(new_string) > max_length:
-                    new_string = new_string[:max_length]
+    try:
+        for token1 in tokens:
+            for token2 in tokens:
+                if token1.text == token2.text:
+                    continue
+                for rule in rules:
+                    new_string = rule(token1.text, token2.text)
+                    if len(new_string) > max_length:
+                        new_string = new_string[:max_length]
 
-                new_binary_mask = token1.binary_mask | token2.binary_mask
-                new_token = Token(new_string, new_binary_mask)
-                strings_after_applying_rules.add(new_token)
-                if progress_bar:
-                    progress_bar.update()
+                    new_binary_mask = token1.binary_mask | token2.binary_mask
+                    new_token = Token(new_string, new_binary_mask)
+                    strings_after_applying_rules.add(new_token)
+                    if progress_bar:
+                        progress_bar.update()
+    except KeyboardInterrupt:
+        print("Early stopping")
 
     return strings_after_applying_rules
 
@@ -63,16 +69,13 @@ def generate_wildcard_tokens(max_length: int) -> list[Token]:
 def mangle_tokens(
     user_config,
     tokens: list[Token],
-    wildcard: bool = True,
+    wildcard: bool = False,
     max_length: int = 8,
 ) -> list[Token]:
     mangled_tokens: set[Token] = set(tokens)
     epochs = user_config['mangling_schedule']
+
     for i, epoch in enumerate(epochs):
-        if wildcard:
-            mangled_tokens |= generate_wildcard_tokens(max_length)
-
-
         mangled_tokens = filter_tokens_based_on_label(
             mangled_tokens, epoch['labels'], FilterType.OR)
         mangled_tokens = set(mangled_tokens)

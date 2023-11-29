@@ -1,4 +1,5 @@
 import re
+from tqdm import tqdm
 from collections import defaultdict
 from commons import Language, LabelType
 from collections import Counter
@@ -74,6 +75,7 @@ def recognize_data_strings(text: str, language: Language) -> list[Token]:
         except NotSupportedLabelType as e:
             pass
             # print(e)
+
     return tokens
 
 
@@ -166,30 +168,3 @@ def count_and_sort_words(words: list[str]) -> list[tuple[str, int]]:
         )
     ]
     return sorted_word_count
-
-
-if __name__ == "__main__":
-    import sys
-    from file_reader import extract_text_from_file, clear_text
-
-    # Argument Checking
-    if len(sys.argv) != 2:
-        print("Provide only one name of file in this directory as program argument")
-    file_name = sys.argv[1]
-
-    # Extracting and clearing text
-    text = extract_text_from_file(file_name)
-    text = clear_text(text)
-
-    # Lemmatiziation and couting of words
-    words = text.split()
-    # lemmatized_words = lemmatize_tokens(words, Language.POLISH)
-
-
-    # sorted_word_count = count_and_sort_words(words)
-    # print(sorted_word_count)
-
-    # Important data recognition
-    # important_polish_tokens = recognize_data_strings(text, Language.POLISH)
-    important_english_tokens = recognize_data_strings(text, Language.ENGLISH)
-    print(important_english_tokens)
