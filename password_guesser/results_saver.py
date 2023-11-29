@@ -6,7 +6,6 @@ def save_tokens(tokens: list[Token], file_name: str) -> None:
     """
     Saves important tokens in csv format into ./output/file_name.csv
     """
-    import pandas as pd
     # Creating output folder if it does not exist
     if not os.path.exists("./output"):
         os.makedirs("./output")
