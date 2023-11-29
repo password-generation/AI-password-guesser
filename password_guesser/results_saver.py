@@ -21,5 +21,5 @@ def save_result_to_txt(tokens: list[Token], file_name: str) -> None:
     Saves result wordlist in txt format
     """
     tokens = sorted(tokens)
-    with open(f"{file_name}", "w") as file:
+    with open(f"./output/{file_name}", "w") as file:
         file.writelines([token.text + "\n" for token in tokens])
