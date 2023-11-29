@@ -3,15 +3,7 @@ from tqdm import tqdm
 from collections import defaultdict
 from commons import Language, LabelType
 from collections import Counter
-from commons import *
-
-
-# BEFORE YOU RUN THIS CODE:
-# nltk.download('wordnet')
-# nltk.download('punkt')
-# nltk.download('stopwords')
-# python -m spacy download pl_core_news_lg
-# python -m spacy download en_core_web_lg
+from commons import NotSupportedLabelType, Language, LabelType, Token
 
 
 def parse_label(text: str) -> LabelType:
@@ -52,9 +44,13 @@ def recognize_data_strings(text: str, language: Language) -> list[Token]:
     Returns list of strings containing data recognized as important
     such as dates, organization names, people's names and surnames and others.
     """
-    from spacy import load as spacy_load
-    from nltk.corpus import stopwords
-
+    from spacy_download import load_spacy
+    import nltk
+    try:
+        from nltk.corpus import stopwords
+    except:
+        nltk.download('stopwords')
+        from nltk.corpus import stopwords
     tokens: list[str] = []
     if language == Language.ENGLISH:
         model = "en_core_web_lg"
@@ -65,7 +61,7 @@ def recognize_data_strings(text: str, language: Language) -> list[Token]:
         stopwords = stopword_file.read().splitlines()
         stop_words = set(stopwords)
 
-    nlp = spacy_load(model)
+    nlp = load_spacy(model)  # If the model is not yet downloaded, this line will download the model and load it afterwards
     important_text = nlp(text)
     for ent in important_text.ents:
         try:
@@ -97,8 +93,13 @@ def lemmatize_tokens(tokens: list[Token], language: Language) -> list[Token]:
     Creates a list of lemmatized words based on provided list of strings (words).
     """
     if language == Language.ENGLISH:
-        from nltk import WordNetLemmatizer
-
+        import nltk
+        try:
+            from nltk import WordNetLemmatizer
+        except:
+            nltk.download('wordnet')
+            nltk.download('punkt')
+            from nltk import WordNetLemmatizer
         lemmatizer = WordNetLemmatizer()
         for i, token in enumerate(tokens):
             text = token.text

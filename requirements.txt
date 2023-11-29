@@ -1,8 +1,11 @@
 PyYaml
-torch
-pandas
 textract
 spacy
 nltk
 transformers
 unidecode
+python-dateutil
+tensorflow
+tensorflow_hub
+numpy
+spacy_download
