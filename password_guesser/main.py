@@ -29,8 +29,8 @@ def guess_passwords(
     print(f"Output file: ./output/{output_filename}")
     print(f"Evidence files: {evidence_files}")
     print(f"Language: {arg_language}")
-    print(f"Will {'not ' if not mangle else ''}mangle passwords")
-    print(f"Will {'not ' if not generate else ''}generate passwords")
+    print(f"Password mangling: {'On' if mangle else 'Off'}")
+    print(f"Password generation: {'On' if generate else 'Off'}")
 
     # Gathering tokens from the evidence files
     language = Language.ENGLISH if arg_language == "EN" else Language.POLISH

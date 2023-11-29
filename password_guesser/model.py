@@ -85,7 +85,7 @@ class TemplateBasedPasswordModel:
         with tf.Session() as sess:
             sess.run(tf.initialize_all_variables())
             try:
-                for template in tqdm(templates, desc='Generating tokens'):
+                for template in tqdm(templates, desc='Generating passwords'):
                     template_as_vector = self.template2vector(template.text)
                     samples = sess.run(self.prediction_tensor,
                                     {self.x_placeholder: template_as_vector})
@@ -131,7 +131,7 @@ def tokens_to_seeds(tokens, max_length) -> list[Token]:
     new_tokens = tokens_with_holes + wildcard_tokens
     total_num = len(new_tokens) * len(new_tokens)
 
-    progress_bar = tqdm(desc=f'Mangling token with wildcards',
+    progress_bar = tqdm(desc=f'Mangling tokens with wildcards',
                         total=total_num)
     mangled_tokens = apply_binary_rules_to_tokens([join_rule], new_tokens, max_length, progress_bar)
     return mangled_tokens

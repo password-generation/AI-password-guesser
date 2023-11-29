@@ -83,7 +83,7 @@ def mangle_tokens(
         rules = epoch['rules']
         if epoch['type'] == ManglingEpochType.UNARY:
             total_num = len(mangled_tokens) * len(rules)
-            progress_bar = tqdm(desc=f'[{i+1}/{len(epochs)}]  Unary mangling epoch',
+            progress_bar = tqdm(desc=f'[{i+1}/{len(epochs)}]  Unary mangling',
                                 total=total_num)
 
             mangled_tokens = apply_unary_rules_to_tokens(rules, mangled_tokens,
@@ -91,7 +91,7 @@ def mangle_tokens(
             progress_bar.close()
         elif epoch['type'] == ManglingEpochType.BINARY:
             total_num = len(rules) * len(mangled_tokens) * len(mangled_tokens)
-            progress_bar = tqdm(desc=f'[{i+1}/{len(epochs)}] Binary mangling epoch',
+            progress_bar = tqdm(desc=f'[{i+1}/{len(epochs)}] Binary mangling',
                                 total=total_num)
             mangled_tokens = apply_binary_rules_to_tokens(rules, mangled_tokens,
                                                           max_length, progress_bar)
