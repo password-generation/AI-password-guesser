@@ -1,3 +1,6 @@
+std_dev: 0.05
+samples_count: 10
+
 mangling_schedule:
   - type: unary
     rules:
@@ -7,7 +10,6 @@ mangling_schedule:
       - capitalize
       - toggle_case
       - toggle_at: 2
-      - toggle_random
       - cut_end: 1
       - cut_end: 2
       - cut_end: 3

@@ -1,12 +1,14 @@
 import tensorflow._api.v2.compat.v1 as tf
+tf.logging.set_verbosity(tf.logging.ERROR)
 import tensorflow_hub as hub
 import numpy as np
 import pickle
+from tqdm import tqdm
 from itertools import combinations
 from copy import copy
 from commons import Token, LabelType
 from commons import WILDCARD_CHAR, CHARMAP_PATH, MODEL_PATH
-from rules_applier import apply_binary_rules_to_tokens, BinStrRule
+from rules_applier import apply_binary_rules_to_tokens
 from password_rules import join as join_rule
 
 
@@ -82,22 +84,24 @@ class TemplateBasedPasswordModel:
 
         with tf.Session() as sess:
             sess.run(tf.initialize_all_variables())
+            try:
+                for template in tqdm(templates, desc='Generating tokens'):
+                    template_as_vector = self.template2vector(template.text)
+                    samples = sess.run(self.prediction_tensor,
+                                    {self.x_placeholder: template_as_vector})
 
-            for template in templates:
-                template_as_vector = self.template2vector(template.text)
-                samples = sess.run(self.prediction_tensor,
-                                   {self.x_placeholder: template_as_vector})
+                    samples_as_strings = self.tensor2templates(samples)
+                    samples_filtered = self.filterout_invalid_samples(template.text, samples_as_strings)
 
-                samples_as_strings = self.tensor2templates(samples)
-                samples_filtered = self.filterout_invalid_samples(template.text, samples_as_strings)
+                    new_label = LabelType.remove_label_from_binary_mask(
+                        LabelType.WILDCARD, template.binary_mask)
+                    new_tokens = list(map(
+                        lambda sample: Token(sample, new_label),
+                        samples_filtered))
 
-                new_label = LabelType.remove_label_from_binary_mask(
-                    LabelType.WILDCARD, template.binary_mask)
-                new_tokens = list(map(
-                    lambda sample: Token(sample, new_label),
-                    samples_filtered))
-
-                produced_tokens.extend(new_tokens)
+                    produced_tokens.extend(new_tokens)
+            except KeyboardInterrupt:
+                print("Early stopping")
 
         return produced_tokens
 
@@ -124,5 +128,10 @@ def tokens_to_seeds(tokens, max_length) -> list[Token]:
     wildcard_tokens = [Token(WILDCARD_CHAR * n, wildcard_binary_mask)
               for n in range(1, 5)]
     tokens_with_holes = poke_holes_in_tokens(tokens)
-    mangled_tokens = apply_binary_rules_to_tokens([join_rule], tokens_with_holes + wildcard_tokens, max_length)
+    new_tokens = tokens_with_holes + wildcard_tokens
+    total_num = len(new_tokens) * len(new_tokens)
+
+    progress_bar = tqdm(desc=f'Mangling token with wildcards',
+                        total=total_num)
+    mangled_tokens = apply_binary_rules_to_tokens([join_rule], new_tokens, max_length, progress_bar)
     return mangled_tokens

@@ -1,11 +1,9 @@
 import re
+from tqdm import tqdm
 from collections import defaultdict
 from commons import Language, LabelType
 from collections import Counter
-import spacy
-import nltk
 from commons import *
-from transformers import pipeline
 
 
 # BEFORE YOU RUN THIS CODE:
@@ -54,7 +52,9 @@ def recognize_data_strings(text: str, language: Language) -> list[Token]:
     Returns list of strings containing data recognized as important
     such as dates, organization names, people's names and surnames and others.
     """
+    from spacy import load as spacy_load
     from nltk.corpus import stopwords
+
     tokens: list[str] = []
     if language == Language.ENGLISH:
         model = "en_core_web_lg"
@@ -65,7 +65,7 @@ def recognize_data_strings(text: str, language: Language) -> list[Token]:
         stopwords = stopword_file.read().splitlines()
         stop_words = set(stopwords)
 
-    nlp = spacy.load(model)
+    nlp = spacy_load(model)
     important_text = nlp(text)
     for ent in important_text.ents:
         try:
@@ -75,6 +75,7 @@ def recognize_data_strings(text: str, language: Language) -> list[Token]:
         except NotSupportedLabelType as e:
             pass
             # print(e)
+
     return tokens
 
 
@@ -96,7 +97,9 @@ def lemmatize_tokens(tokens: list[Token], language: Language) -> list[Token]:
     Creates a list of lemmatized words based on provided list of strings (words).
     """
     if language == Language.ENGLISH:
-        lemmatizer = nltk.WordNetLemmatizer()
+        from nltk import WordNetLemmatizer
+
+        lemmatizer = WordNetLemmatizer()
         for i, token in enumerate(tokens):
             text = token.text
             lemmatized_text = lemmatizer.lemmatize(text)
@@ -104,8 +107,23 @@ def lemmatize_tokens(tokens: list[Token], language: Language) -> list[Token]:
         return tokens
     elif language == Language.POLISH:
         # If run for the first time it will start downloading the model (in the final product we should handle that earlier)
-        pipe = pipeline(task="text2text-generation", model="amu-cai/polemma-large", tokenizer="amu-cai/polemma-large", max_new_tokens=3)
-        lemmatized_words = [res['generated_text'] for res in pipe([token.text for token in tokens], clean_up_tokenization_spaces=True, num_beams=3)]
+        from transformers import pipeline
+
+        pipe = pipeline(
+            task="text2text-generation",
+            model="amu-cai/polemma-large",
+            tokenizer="amu-cai/polemma-large",
+            max_new_tokens=3
+        )
+
+        lemmatized_words = [
+            res['generated_text']
+            for res in pipe(
+                [token.text for token in tokens],
+                clean_up_tokenization_spaces=True,
+                num_beams=3)
+        ]
+
         for i, lemmatized_word in enumerate(lemmatized_words):
             tokens[i] = Token(lemmatized_word, tokens[i].binary_mask)
         return tokens
@@ -150,30 +168,3 @@ def count_and_sort_words(words: list[str]) -> list[tuple[str, int]]:
         )
     ]
     return sorted_word_count
-
-
-if __name__ == "__main__":
-    import sys
-    from file_reader import extract_text_from_file, clear_text
-
-    # Argument Checking
-    if len(sys.argv) != 2:
-        print("Provide only one name of file in this directory as program argument")
-    file_name = sys.argv[1]
-
-    # Extracting and clearing text
-    text = extract_text_from_file(file_name)
-    text = clear_text(text)
-
-    # Lemmatiziation and couting of words
-    words = text.split()
-    # lemmatized_words = lemmatize_tokens(words, Language.POLISH)
-   
-
-    # sorted_word_count = count_and_sort_words(words)
-    # print(sorted_word_count)
-
-    # Important data recognition
-    # important_polish_tokens = recognize_data_strings(text, Language.POLISH)
-    important_english_tokens = recognize_data_strings(text, Language.ENGLISH)
-    print(important_english_tokens)
