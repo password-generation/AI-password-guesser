@@ -1,23 +1,19 @@
 ## Table of contents
 
 - [Table of contents](#table-of-contents)
-- [The goals for June 2023](#the-goals-for-june-2023)
-- [Installation and Requirements](#installation-and-requirements)
+- [Requirements](#requirements)
+- [Installation](#installation)
 - [How to use the generator](#how-to-use-the-generator)
   - [Options](#options)
   - [Evidence](#evidence)
 - [The password-generation rules](#the-password-generation-rules)
 - [Information obtained from the evidence file(s)](#information-obtained-from-the-evidence-files)
 
-## The goals for June 2023
+## Requirements
+- Python 3.10 or newer
 
-- [ ]  Terminal-based application accepting the evidence as the input file(s) in one of the `.txt`, `.pdf`, `.docx`, `.odt` formats
-- [ ]  The possibility to include and use a custom-made password-creation rules’ file
-- [ ]  The generation of the user-specified number of passwords based on the evidence and password-creation rules
-
-## Installation and Requirements
-
-- [ ]  TODO
+## Installation
+`$ python3 -m pip install -r requirements.txt`
 
 ## How to use the generator
 
@@ -27,8 +23,11 @@ To run the program type the following command in the terminal
 
 ### Options
 
-* `-n [n_passwords]` - Number of passwords to generate
 * `-o [output_file]` - Text file with generated passwords 
+* `-n [max_password_length]` - Maximal length of generated passwords
+* `-l [language]` - Language of passed evidence [EN|PL]
+* `-m [mangling]` - If present, program will create passwords using mangling rules
+* `-g [generation]` - If present, program will create passwordsd using generational AI model
 
 ### Evidence
 
