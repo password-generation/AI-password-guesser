@@ -9,3 +9,4 @@ htmlcov/
 *.docx
 output/
 !DATA/stopwords-pl.txt
+!DATA/stopwords-en.txt

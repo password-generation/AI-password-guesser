@@ -1,5 +1,4 @@
 import re
-from tqdm import tqdm
 from collections import defaultdict
 from commons import Language, LabelType
 from collections import Counter
@@ -39,34 +38,31 @@ def parse_text_to_tokens(
     return tokens
 
 
-def recognize_data_strings(text: str, language: Language) -> list[Token]:
+def tokenize_text(text: str, language: Language, user_config: dict) -> list[Token]:
     """
     Returns list of strings containing data recognized as important
     such as dates, organization names, people's names and surnames and others.
     """
     from spacy_download import load_spacy
-    import nltk
-    try:
-        from nltk.corpus import stopwords
-    except:
-        nltk.download('stopwords')
-        from nltk.corpus import stopwords
+
     tokens: list[str] = []
     if language == Language.ENGLISH:
-        model = "en_core_web_lg"
-        stop_words = set(stopwords.words("english"))
+        model = user_config["english_tokenizer"]
+        stopword_file = './DATA/stopwords-en.txt'
     elif language == Language.POLISH:
-        model = "pl_core_news_lg"
-        stopword_file = open('./DATA/stopwords-pl.txt', 'r', encoding='utf8')
-        stopwords = stopword_file.read().splitlines()
-        stop_words = set(stopwords)
+        model = user_config["polish_tokenizer"]
+        stopword_file = './DATA/stopwords-pl.txt'
+
+    with open(stopword_file, 'r', encoding='utf8') as f:
+        stopwords = f.read().splitlines()
+    stop_words = set(stopwords)
 
     nlp = load_spacy(model)  # If the model is not yet downloaded, this line will download the model and load it afterwards
     important_text = nlp(text)
     for ent in important_text.ents:
         try:
             label = parse_label(ent.label_)
-            new_tokens = parse_text_to_tokens(ent.text, label, stop_words)
+            new_tokens = parse_text_to_tokens(ent.lemma_, label, stop_words)
             tokens.extend(new_tokens)
         except NotSupportedLabelType as e:
             pass
@@ -86,48 +82,6 @@ def merge_token_duplicates(tokens: list[Token]) -> list[Token]:
         lambda k_v: Token(*k_v),
         token_dict.items()))
     return new_tokens
-
-
-def lemmatize_tokens(tokens: list[Token], language: Language) -> list[Token]:
-    """
-    Creates a list of lemmatized words based on provided list of strings (words).
-    """
-    if language == Language.ENGLISH:
-        import nltk
-        try:
-            from nltk import WordNetLemmatizer
-        except:
-            nltk.download('wordnet')
-            nltk.download('punkt')
-            from nltk import WordNetLemmatizer
-        lemmatizer = WordNetLemmatizer()
-        for i, token in enumerate(tokens):
-            text = token.text
-            lemmatized_text = lemmatizer.lemmatize(text)
-            tokens[i] = Token(lemmatized_text, token.binary_mask)
-        return tokens
-    elif language == Language.POLISH:
-        # If run for the first time it will start downloading the model (in the final product we should handle that earlier)
-        from transformers import pipeline
-
-        pipe = pipeline(
-            task="text2text-generation",
-            model="amu-cai/polemma-large",
-            tokenizer="amu-cai/polemma-large",
-            max_new_tokens=3
-        )
-
-        lemmatized_words = [
-            res['generated_text']
-            for res in pipe(
-                [token.text for token in tokens],
-                clean_up_tokenization_spaces=True,
-                num_beams=3)
-        ]
-
-        for i, lemmatized_word in enumerate(lemmatized_words):
-            tokens[i] = Token(lemmatized_word, tokens[i].binary_mask)
-        return tokens
 
 
 def email_to_token(match: re.Match[str]) -> list[Token]:

@@ -1,8 +1,6 @@
 PyYaml
 textract
 spacy
-nltk
-transformers
 unidecode
 python-dateutil
 tensorflow

@@ -6,8 +6,8 @@ from file_reader import extract_text_from_file, clear_text
 from yaml_parser import get_model_props_from_config, parse_yaml
 from rules_applier import mangle_tokens
 from commons import Language, Token, token_to_str
-from text_parser import recognize_data_strings, merge_token_duplicates, \
-    lemmatize_tokens, recognize_email_addresses
+from text_parser import tokenize_text, merge_token_duplicates, \
+    recognize_email_addresses
 from results_saver import save_result_to_txt, save_tokens
 from dates_parser import extract_parse_dates
 from copy import deepcopy
@@ -32,16 +32,19 @@ def guess_passwords(
     print(f"Password mangling: {'On' if mangle else 'Off'}")
     print(f"Password generation: {'On' if generate else 'Off'}")
 
+    user_config = parse_yaml(config_file)
+
     # Gathering tokens from the evidence files
     language = Language.ENGLISH if arg_language == "EN" else Language.POLISH
 
     print("Reading evidence...")
-    tokens = read_evidence(evidence_files, language)
+    text = read_evidence(evidence_files)
 
-    print("Lemmatizing tokens...")
-    tokens = lemmatize_tokens(tokens, language)
+    tokens = recognize_email_addresses(text)
 
-    print("Merging duplicates...")
+    print("Tokenizing text...")
+    tokens += tokenize_text(text, language, user_config)
+
     tokens = merge_token_duplicates(tokens)
 
     save_tokens(tokens, "extracted_tokens.csv")
@@ -51,19 +54,17 @@ def guess_passwords(
         for tok in sorted(tokens):
             print(token_to_str(tok))
 
-    if mangle or generate:
-        # Date parsing
-        tokens = extract_parse_dates(tokens, language)
-        base_tokens = deepcopy(tokens)
+    # Date parsing
+    tokens = extract_parse_dates(tokens, language)
 
-        # Replacing polish specific letters with english equivalents
-        if language == Language.POLISH:
-            tokens = [Token(unidecode(token.text), token.binary_mask) for token in tokens]
+    # Replacing polish specific letters with english equivalents
+    if language == Language.POLISH:
+        tokens = [Token(unidecode(token.text), token.binary_mask) for token in tokens]
+
+    base_tokens = deepcopy(tokens)
 
     # Mangling of the tokens
     if mangle:
-        user_config = parse_yaml(config_file)
-
         print("Mangling tokens...")
         tokens = mangle_tokens(user_config, tokens, False, max_length)
         save_tokens(tokens, "mangled_tokens.csv")
@@ -71,13 +72,6 @@ def guess_passwords(
         if verbose:
             for tok in sorted(tokens):
                 print(token_to_str(tok))
-
-        if not generate:
-            save_result_to_txt(tokens, output_filename)
-            print(
-                f"Saved result with {len(tokens)} only mangled passwords to {output_filename} file"
-            )
-            return
 
     # Generating new tokens using AI
     if generate:
@@ -98,34 +92,19 @@ def guess_passwords(
             for tok in sorted(generated_tokens):
                 print(token_to_str(tok))
 
-        if not mangle:
-            save_result_to_txt(generated_tokens, output_filename)
-            print(
-                f"Saved result with {len(generated_tokens)} only generated passwords to {output_filename} file"
-            )
-            return
+        tokens = merge_token_duplicates(tokens + generated_tokens)
 
-        # Cutting out duplicates and saving the complete password list
-        # save_tokens(merge_token_duplicates(tokens+generated_tokens), output_filename)
-
-        save_result_to_txt(
-            merge_token_duplicates(tokens + generated_tokens), output_filename
-        )
-        print(
-            f"Saved result with {len(merge_token_duplicates(tokens + generated_tokens))} passwords to {output_filename} file"
-        )
+    tokens = merge_token_duplicates(tokens + base_tokens)
+    save_result_to_txt(tokens, output_filename)
+    print(f"Saved {len(tokens)} passwords to ./output/{output_filename} file")
 
 
-def read_evidence(evidence_files: list[str], language: Language) -> list[Token]:
+def read_evidence(evidence_files: list[str]) -> str:
     text = ""
     for file_name in evidence_files:
         text = text + " " + clear_text(extract_text_from_file(file_name))
 
-    tokens = recognize_email_addresses(text)
-    print("Tokenizing text...")
-    tokens += recognize_data_strings(text, language)
-
-    return tokens
+    return text
 
 
 def create_parser() -> ArgumentParser:
