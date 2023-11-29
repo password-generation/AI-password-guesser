@@ -130,7 +130,7 @@ def read_evidence(evidence_files: list[str], language: Language) -> list[Token]:
 
 def create_parser() -> ArgumentParser:
     parser = ArgumentParser(
-        prog="password_guessing.py",
+        prog="password_guesser",
         description="This program generates a dictionary of passwords using the provided evidence. "
         "Currently supported evidence formats are: .txt, .pdf, .docx, .odt",
     )
