@@ -25,9 +25,9 @@ To run the program type the following command in the terminal
 
 * `-o [output_file]` - Text file with generated passwords 
 * `-n [max_password_length]` - Maximum length of generated passwords
-* `-l [language]` - Language of passed evidence [EN|PL]
-* `-m [mangling]` - If present, program will create passwords using mangling rules
-* `-g [generation]` - If present, program will create passwordsd using generational AI model
+* `-l [language]` - Language of the passed evidence [EN|PL]
+* `-m [mangling]` - If present, the program will create passwords using mangling rules
+* `-g [generation]` - If present, the program will create passwords using generational AI model
 
 ### Evidence
 
