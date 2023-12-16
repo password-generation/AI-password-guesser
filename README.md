@@ -1,13 +1,19 @@
+# Evidence Based AI Password Guesser
+
 ## Table of contents
 
-- [Table of contents](#table-of-contents)
 - [Requirements](#requirements)
 - [Installation](#installation)
-- [How to use the generator](#how-to-use-the-generator)
+- [How to use the password guesser](#how-to-use-the-password-guesser)
   - [Options](#options)
-  - [Evidence](#evidence)
+  - [Input files format](#input-files-format)
 - [The password-generation rules](#the-password-generation-rules)
-- [Information obtained from the evidence file(s)](#information-obtained-from-the-evidence-files)
+- [Example of program execution](#example-of-program-execution)
+  - [Input file](#input-file)
+  - [Extracted tokens](#extracted-tokens)
+  - [Mangled passwords](#mangled-passwords)
+  - [Generated passwords](#generated-passwords)
+  - [Snippet from program execution](#snippet-from-program-execution)
 
 ## Requirements
 - Python 3.10 or newer
@@ -23,7 +29,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## How to use the generator
+## How to use the password guesser
 
 To run the program execute the following command in the terminal
 
@@ -60,7 +66,7 @@ options:
   -v, --verbose         Flag for printing verbose output
 ```
 
-### Evidence
+### Input files format
 
 Files or a directory containing the evidence in `.txt`, `.pdf`, `.odt`, `.docx` format.
 
@@ -84,7 +90,9 @@ ale95
 
 ## Example of program execution
 
-### Evidence data - text messages:
+### Input file
+
+Text messages in txt format:
 
 * Hey `John`! How was your weekend?
 
