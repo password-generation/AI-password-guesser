@@ -7,7 +7,8 @@
 - [How to use the password guesser](#how-to-use-the-password-guesser)
   - [Options](#options)
   - [Input files format](#input-files-format)
-- [The password-generation rules](#the-password-generation-rules)
+- [User config file](#user-config-file)
+- [Password generation rules](#password-generation-rules)
 - [Example of program execution](#example-of-program-execution)
   - [Input file](#input-file)
   - [Extracted tokens](#extracted-tokens)
@@ -70,15 +71,68 @@ options:
 
 Files or a directory containing the evidence in `.txt`, `.pdf`, `.odt`, `.docx` format.
 
-## The password-generation rules
+## User config file
 
-A text file describing the password-generation rules contains exactly one rule per line.
+`config.yaml` is a YAML file where user can define:
 
-The specification of the rule definitions’ syntax is a part of the tasks for the first sprint.
+* password model parameters: `stddev` and `samples_count` - max number of passwords generated from one template
+* type of spacy NER model: `polish_tokenizer`, `english_tokenizer`
+* `mangling_schedule` which declares which mangling rules should be used when
+* `pre_generation_schedule` - the same as mangling schedule but used before generation
 
-The effect of applying rules for example tuple of tokens `aleksandra` and `1995`
+Here's default abbreviated user config:
 
-```bash
+```YAML
+std_dev: 0.05
+samples_count: 10
+
+polish_tokenizer: pl_core_news_lg
+english_tokenizer: en_core_web_lg
+
+mangling_schedule:
+  - type: unary
+    rules:
+      - nothing
+      - capitalize
+      - toggle_case
+      - cut_end: 1
+      - gamerize: 5
+    labels:
+      - PERSON
+      - DATE
+      - ORG
+
+  - type: binary
+    rules:
+      - join
+      - interlace
+    labels:
+      - PERSON
+      - ORG
+
+  - type: unary
+    rules:
+      - nothing
+    labels:
+      - PERSON
+
+pre_generation_schedule:
+  - type: binary
+    rules:
+      - join
+    labels:
+      - PERSON
+      - WILDCARD
+```
+
+## Password generation rules
+
+There are two types of password rules:
+* unary, which accept and return one token/password, e.g.: capitalize, cut_end, gamerize.
+* binary: which accept two tokens and return one password, e.g.: join, interlace
+
+Here are passwords created from tokens `aleksandra` and `1995` using different kind of password rules:
+```
 AL3KS@NDRA
 AlEkSaNdR@
 aLeKsAnDrA
@@ -141,10 +195,10 @@ chrioray        [PERSON]
 ### Snippet from program execution
 
 ```
-$ ./guess_passwords.py -l EN -n 16 -o passwords.txt -mg test1.txt
+$ ./guess_passwords.py -l EN -n 16 -o passwords.txt -mg msgs.txt
 Passwords max length: 16
 Output file: ./output/passwords.txt
-Evidence files: ['test1.txt']
+Evidence files: ['msgs.txt']
 Language: EN
 Password mangling: On
 Password generation: On
