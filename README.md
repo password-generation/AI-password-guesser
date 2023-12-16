@@ -13,21 +13,52 @@
 - Python 3.10 or newer
 
 ## Installation
-`$ python3 -m pip install -r requirements.txt`
+```
+git clone https://github.com/password-generation/AI-cryptanalysis.git
+cd AI-cryptanalysis
+
+python3 -m venv .venv
+source .venv/bin/activate
+
+pip install -r requirements.txt
+```
 
 ## How to use the generator
 
-To run the program type the following command in the terminal
+To run the program execute the following command in the terminal
 
-`$ python3 password_guessing.py [options] [evidence]`
+```
+./guess_passwords.py [options] [evidence]
+```
 
 ### Options
 
-* `-o [output_file]` - Text file with generated passwords 
-* `-n [max_password_length]` - Maximum length of generated passwords
-* `-l [language]` - Language of the passed evidence [EN|PL]
-* `-m [mangling]` - If present, the program will create passwords using mangling rules
-* `-g [generation]` - If present, the program will create passwords using generational AI model
+```
+usage: guess_passwords.py [-h] [-m] [-g] [-v]
+                          [-n LENGTH] [-o OUTPUT]
+                          [-l {EN,PL}] [-c CONFIG]
+                          FILENAME [FILENAME ...]
+
+This program generates a dictionary of passwords based on the provided evidence.
+Currently supported evidence formats are: .txt, .pdf, .docx, .odt
+
+positional arguments:
+  FILENAME              Name of the file containing the evidence (can be a folder name)
+
+options:
+  -h, --help            show this help message and exit
+  -n LENGTH, --length LENGTH
+                        Max length of passwords
+  -o OUTPUT, --output OUTPUT
+                        Output file with result passwords
+  -l {EN,PL}, --language {EN,PL}
+                        Language of the evidence (default: EN)
+  -c CONFIG, --config CONFIG
+                        User config file
+  -m, --mangle          Use password mangling
+  -g, --generate        Use password generation model
+  -v, --verbose         Flag for printing verbose output
+```
 
 ### Evidence
 
@@ -35,42 +66,103 @@ Files or a directory containing the evidence in `.txt`, `.pdf`, `.odt`, `.docx` 
 
 ## The password-generation rules
 
-A text file describing the password-generation rules contains exactly one rule per line. 
+A text file describing the password-generation rules contains exactly one rule per line.
 
-The specification of the rule definitions’ syntax is a part of the tasks for the first sprint. 
+The specification of the rule definitions’ syntax is a part of the tasks for the first sprint.
 
 The effect of applying rules for example tuple of tokens `aleksandra` and `1995`
 
 ```bash
-ALEKSANDRA
-AlEkSaNdRa
+AL3KS@NDRA
+AlEkSaNdR@
 aLeKsAnDrA
-Aleksandra1995
-aleksandra95
+Aleks@ndra1995
+a1l9e9k5sa
 Ksandra95
-ale15
+ale95
 ```
 
-## Information obtained from the evidence file(s)
+## Example of program execution
 
-Extracted tokens: `Filomena`, `Marek`, `Euzebia`, `Rex`, `Max`, `maj`, `1995`, `10`
+### Evidence data - text messages:
 
-File with the correspondence:
+* Hey `John`! How was your weekend?
 
-* Hey `Marek`! How was your weekend?
+* It was great. I spent some time with `Elizabeth` and `Chris`. We took `Rex`, our dog, to the park. Btw, when is your birthdate?
 
-* Hi there! It was great, thanks for asking. I spent some quality time with `Euzebia` and `Filomena`. We took `Rex`, our adorable dog, to the park, and he had a blast chasing his favorite tennis ball. How about you?
+* It’s `May 10, 1995`.
 
-* That sounds lovely! My weekend was good too. By the way, `Marek`, could you remind me of your `birthdate`? I want to make sure I get you the right gift.
+### Extracted tokens
 
-* Sure, it’s `May` `10`, `1995`. Thanks in advance! By the way, how’s your dog doing? I remember you mentioned you adopted a new puppy.
+NER (Named Entity Recognition) model extraced these tokens:
 
-* Ah, thanks for reminding me. His name is `Max`, and he’s growing fast. I hope `Rex` and `Max` can have a playdate soon!
+```
+1995      [DATE]
+chris     [PERSON]
+elizabeth [PERSON]
+john      [PERSON]
+may 10    [DATE]
+rex       [PERSON]
+```
 
-* Absolutely! `Rex` would love that. By the way, did `Euzebia` tell you about the upcoming family gathering next week? We’re planning a small get-together for `Filomena`’s birthday.
+### Mangled passwords
 
-* No, she didn’t mention it yet. But that’s wonderful! I’ll make sure to mark it on my calendar. Please let me know if you need any help with the preparations.
+Using default mangling schedule from `config.yaml`, password mangler generated 23064 passwords.
+Here are 5 examples of these passwords:
+```
+c#r!sELIZA8ETH  [PERSON]
+1005elIzab3th   [PERSON, DATE]
+r3Xelizab3      [PERSON]
+rex1995         [PERSON, DATE]
+reXc#Ris        [PERSON]
+```
 
-* Thanks! Your support is always appreciated. We’re excited to celebrate `Filomena` turning five. Time flies!
+### Generated passwords
 
-* Indeed, it does. I’m looking forward to seeing everyone. Let’s make it a memorable day for `Filomena`!
+Using default pre-generation mangling schedule from `config.yaml`, mangler generated 8849 templates.
+Using them password model generated 3287 passwords.
+Here are 5 examples of these passwords:
+```
+ilovelizabeth   [PERSON]
+johncena        [PERSON]
+matrex          [PERSON]
+1005elarabeth   [PERSON, DATE]
+chrioray        [PERSON]
+```
+
+### Snippet from program execution
+
+```
+$ ./guess_passwords.py -l EN -n 16 -o passwords.txt -mg test1.txt
+Passwords max length: 16
+Output file: ./output/passwords.txt
+Evidence files: ['test1.txt']
+Language: EN
+Password mangling: On
+Password generation: On
+
+Reading evidence...
+Tokenizing text...
+Merging tokens: 100%|██████████████████████████| 6/6 [00:00<00:00, 31575.69it/s]
+Extracted 6 tokens
+
+Mangling tokens...
+[1/4]  Unary mangling: 100%|██████████████| 144/144 [00:00<00:00, 370994.95it/s]
+[2/4]  Unary mangling: 100%|██████████████| 350/350 [00:00<00:00, 217546.89it/s]
+[3/4] Binary mangling:  99%|█████████▉| 24864/25088 [00:00<00:00, 157160.30it/s]
+[4/4]  Unary mangling: 100%|██████████| 23064/23064 [00:00<00:00, 297485.20it/s]
+Mangled 23064 tokens
+
+Generating passwords...
+Creating password templates...
+[1/2] Binary mangling:  99%|███████████▊| 9310/9409 [00:00<00:00, 490460.21it/s]
+[2/2]  Unary mangling: 100%|████████████| 8849/8849 [00:00<00:00, 535166.41it/s]
+Created 8849 templates
+Max number of passwords generated from one template: 10
+Generating passwords: 100%|████████████████| 8849/8849 [00:35<00:00, 252.61it/s]
+Generated 3298 tokens
+
+Merging tokens: 100%|████████████████| 26362/26362 [00:00<00:00, 1233946.48it/s]
+Merging tokens: 100%|████████████████| 26157/26157 [00:00<00:00, 1328711.86it/s]
+Saved 26156 passwords to ./output/passwords.txt
+```

@@ -25,7 +25,7 @@ def guess_passwords(
     verbose: bool,
 ) -> None:
     # Printing program arguments
-    print(f"Generating passwords of max length {max_length}")
+    print(f"Passwords max length: {max_length}")
     print(f"Output file: ./output/{output_filename}")
     print(f"Evidence files: {evidence_files}")
     print(f"Language: {arg_language}")
