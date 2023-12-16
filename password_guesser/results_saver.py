@@ -1,5 +1,5 @@
 import os
-from commons import LabelType, Token
+from .commons import LabelType, Token
 
 
 def save_tokens(tokens: list[Token], file_name: str) -> None:

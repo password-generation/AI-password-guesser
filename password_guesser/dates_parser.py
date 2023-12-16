@@ -1,4 +1,4 @@
-from commons import LabelType, Language, Token
+from .commons import LabelType, Language, Token
 from dateutil.parser import parse
 from datetime import datetime
 

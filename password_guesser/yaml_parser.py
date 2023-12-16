@@ -1,7 +1,7 @@
 from yaml import safe_load
 from functools import partial
-from commons import ManglingEpochType, LabelType
-import password_rules
+from .commons import ManglingEpochType, LabelType
+from . import password_rules
 
 
 def parse_yaml(filename: str):

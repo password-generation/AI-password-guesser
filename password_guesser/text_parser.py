@@ -1,9 +1,8 @@
 import re
 from tqdm import tqdm
 from collections import defaultdict
-from commons import Language, LabelType
 from collections import Counter
-from commons import NotSupportedLabelType, Language, LabelType, Token
+from .commons import NotSupportedLabelType, Language, LabelType, Token
 
 
 def parse_label(text: str) -> LabelType:

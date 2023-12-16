@@ -1,6 +1,6 @@
 import pytest
-from commons import LabelType, Language, Token
-from password_mangler.dates_parser import extract_parse_dates
+from password_guesser.commons import LabelType, Language, Token
+from password_guesser.dates_parser import extract_parse_dates
 
 MASK = LabelType.to_binary_mask([LabelType.DATE])
 

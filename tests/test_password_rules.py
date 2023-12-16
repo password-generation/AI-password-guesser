@@ -1,5 +1,5 @@
 import pytest
-from password_mangler.password_rules import *
+from password_guesser.password_rules import *
 
 
 def test_nothing():

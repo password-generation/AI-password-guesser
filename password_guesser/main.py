@@ -2,14 +2,14 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 from argparse import ArgumentParser
-from file_reader import extract_text_from_file, clear_text
-from yaml_parser import get_model_props_from_config, parse_yaml
-from rules_applier import mangle_tokens
-from commons import Language, Token, token_to_str
-from text_parser import tokenize_text, merge_token_duplicates, \
+from .file_reader import extract_text_from_file, clear_text
+from .yaml_parser import get_model_props_from_config, parse_yaml
+from .rules_applier import mangle_tokens
+from .commons import Language, Token, token_to_str
+from .text_parser import tokenize_text, merge_token_duplicates, \
     recognize_email_addresses
-from results_saver import save_result_to_txt, save_tokens
-from dates_parser import extract_parse_dates
+from .results_saver import save_result_to_txt, save_tokens
+from .dates_parser import extract_parse_dates
 from copy import deepcopy
 from unidecode import unidecode
 
@@ -76,7 +76,7 @@ def guess_passwords(
     # Generating new tokens using AI
     if generate:
         print("Generating passwords...")
-        from model import TemplateBasedPasswordModel, tokens_to_seeds
+        from .model import TemplateBasedPasswordModel, tokens_to_seeds
 
         seeds = tokens_to_seeds(base_tokens, max_length)
         std_dev, samples_count = get_model_props_from_config(config_file)

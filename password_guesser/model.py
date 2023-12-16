@@ -6,10 +6,10 @@ import pickle
 from tqdm import tqdm
 from itertools import combinations
 from copy import copy
-from commons import Token, LabelType
-from commons import WILDCARD_CHAR, CHARMAP_PATH, MODEL_PATH
-from rules_applier import apply_binary_rules_to_tokens
-from password_rules import join as join_rule
+from .commons import Token, LabelType
+from .commons import WILDCARD_CHAR, CHARMAP_PATH, MODEL_PATH
+from .rules_applier import apply_binary_rules_to_tokens
+from .password_rules import join as join_rule
 
 
 class TemplateBasedPasswordModel:
