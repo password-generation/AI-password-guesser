@@ -1,7 +1,5 @@
 # Evidence Based AI Password Guesser
 
-## Table of contents
-
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [How to use the password guesser](#how-to-use-the-password-guesser)
