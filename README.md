@@ -15,6 +15,7 @@
   - [Mangled passwords](#mangled-passwords)
   - [Generated passwords](#generated-passwords)
   - [Snippet from program execution](#snippet-from-program-execution)
+- [Disclaimer about password model file](#disclaimer-about-password-model-file)
 
 ## Requirements
 - Python 3.10 or newer
@@ -228,3 +229,7 @@ Merging tokens: 100%|████████████████| 26362/263
 Merging tokens: 100%|████████████████| 26157/26157 [00:00<00:00, 1328711.86it/s]
 Saved 26156 passwords to ./output/passwords.txt
 ```
+
+## Disclaimer about password model file
+
+In our application we've used pretrained autoencoder model file from https://github.com/pasquini-dario/PLR
