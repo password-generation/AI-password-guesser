@@ -4,12 +4,8 @@ import tensorflow_hub as hub
 import numpy as np
 import pickle
 from tqdm import tqdm
-from itertools import combinations
-from copy import copy
 from .commons import Token, LabelType
 from .commons import WILDCARD_CHAR, CHARMAP_PATH, MODEL_PATH
-from .rules_applier import apply_binary_rules_to_tokens
-from .password_rules import join as join_rule
 
 
 class TemplateBasedPasswordModel:
@@ -80,7 +76,7 @@ class TemplateBasedPasswordModel:
         return list(set(filter(partial_is_sample_valid, samples)))
 
     def sample_model_based_on_templates(self, templates: list[Token]) -> list[Token]:
-        produced_tokens = list[Token]()
+        produced_tokens = set[Token]()
 
         with tf.Session() as sess:
             sess.run(tf.initialize_all_variables())
@@ -95,43 +91,12 @@ class TemplateBasedPasswordModel:
 
                     new_label = LabelType.remove_label_from_binary_mask(
                         LabelType.WILDCARD, template.binary_mask)
-                    new_tokens = list(map(
+                    new_tokens = set(map(
                         lambda sample: Token(sample, new_label),
                         samples_filtered))
 
-                    produced_tokens.extend(new_tokens)
+                    produced_tokens.update(new_tokens)
             except KeyboardInterrupt:
                 print("Early stopping")
 
-        return produced_tokens
-
-def poke_holes_in_tokens(tokens: list[Token]) -> list[Token]:
-    wildcard_binary_mask = 1 << LabelType.WILDCARD.value
-    tokens_with_holes = []
-    for token in tokens:
-        # Without holes
-        tokens_with_holes.append(token)
-        # With one hole
-        for i in range(len(token)):
-            tokens_with_holes.append(Token(token.text[:i] + WILDCARD_CHAR + token.text[i + 1 :], token.binary_mask | wildcard_binary_mask))
-        # With two holes
-        comb = combinations(list(range(len(token.text))), 2)
-        for i, j in comb:
-            token_text_list = list(copy(token.text))
-            token_text_list[i] = WILDCARD_CHAR
-            token_text_list[j] = WILDCARD_CHAR
-            tokens_with_holes.append(Token(''.join(token_text_list), token.binary_mask | wildcard_binary_mask))
-    return tokens_with_holes
-
-def tokens_to_seeds(tokens, max_length) -> list[Token]:
-    wildcard_binary_mask = 1 << LabelType.WILDCARD.value
-    wildcard_tokens = [Token(WILDCARD_CHAR * n, wildcard_binary_mask)
-              for n in range(1, 5)]
-    tokens_with_holes = poke_holes_in_tokens(tokens)
-    new_tokens = tokens_with_holes + wildcard_tokens
-    total_num = len(new_tokens) * len(new_tokens)
-
-    progress_bar = tqdm(desc=f'Mangling tokens with wildcards',
-                        total=total_num)
-    mangled_tokens = apply_binary_rules_to_tokens([join_rule], new_tokens, max_length, progress_bar)
-    return mangled_tokens
+        return list(produced_tokens)

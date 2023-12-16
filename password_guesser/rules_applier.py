@@ -1,7 +1,8 @@
 from typing import Callable
 from tqdm import tqdm
-from .password_rules import *
 from .commons import LabelType, ManglingEpochType, FilterType, Token, WILDCARD_CHAR
+from itertools import combinations
+from copy import copy
 
 
 UnStrRule = Callable[[str], str]
@@ -67,13 +68,11 @@ def generate_wildcard_tokens(max_length: int) -> list[Token]:
 
 
 def mangle_tokens(
-    user_config,
+    epochs,
     tokens: list[Token],
-    wildcard: bool = False,
     max_length: int = 8,
 ) -> list[Token]:
     mangled_tokens: set[Token] = set(tokens)
-    epochs = user_config['mangling_schedule']
 
     for i, epoch in enumerate(epochs):
         mangled_tokens = filter_tokens_based_on_label(
@@ -97,6 +96,38 @@ def mangle_tokens(
                                                           max_length, progress_bar)
             progress_bar.close()
 
+    return list(mangled_tokens)
+
+
+def poke_holes_in_tokens(tokens: list[Token]) -> list[Token]:
+    wildcard_binary_mask = 1 << LabelType.WILDCARD.value
+    tokens_with_holes = []
+    for token in tokens:
+        # Without holes
+        tokens_with_holes.append(token)
+        # With one hole
+        for i in range(len(token)):
+            tokens_with_holes.append(Token(token.text[:i] + WILDCARD_CHAR + token.text[i + 1 :], token.binary_mask | wildcard_binary_mask))
+        # With two holes
+        comb = combinations(list(range(len(token.text))), 2)
+        for i, j in comb:
+            token_text_list = list(copy(token.text))
+            token_text_list[i] = WILDCARD_CHAR
+            token_text_list[j] = WILDCARD_CHAR
+            tokens_with_holes.append(Token(''.join(token_text_list), token.binary_mask | wildcard_binary_mask))
+    return tokens_with_holes
+
+
+def create_password_templates(user_config, tokens, max_length) -> list[Token]:
+    wildcard_binary_mask = 1 << LabelType.WILDCARD.value
+    wildcard_tokens = [Token(WILDCARD_CHAR * n, wildcard_binary_mask)
+                       for n in range(1, 5)]
+    tokens_with_holes = poke_holes_in_tokens(tokens)
+    new_tokens = tokens_with_holes + wildcard_tokens
+
+    epochs = user_config['pre_generation_schedule']
+    mangled_tokens = mangle_tokens(epochs, new_tokens, max_length)
+    mangled_tokens = set(mangled_tokens)
     return list(mangled_tokens)
 
 

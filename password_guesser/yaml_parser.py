@@ -7,8 +7,15 @@ from . import password_rules
 def parse_yaml(filename: str):
     with open(filename, "r") as file:
         user_config = safe_load(file)
+    
+    user_config['mangling_schedule'] = parse_schedule(user_config['mangling_schedule'])
+    user_config['pre_generation_schedule'] = parse_schedule(user_config['pre_generation_schedule'])
 
-    for epoch in user_config['mangling_schedule']:
+    return user_config
+
+
+def parse_schedule(schedule):
+    for epoch in schedule:
         epoch['type'] = ManglingEpochType.UNARY if epoch['type'] == 'unary'\
             else ManglingEpochType.BINARY
 
@@ -33,7 +40,7 @@ def parse_yaml(filename: str):
             labels.append(LabelType[label])
         epoch['labels'] = labels
 
-    return user_config
+    return schedule
 
 
 def get_model_props_from_config(filename: str):

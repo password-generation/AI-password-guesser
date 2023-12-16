@@ -4,7 +4,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 from argparse import ArgumentParser
 from .file_reader import extract_text_from_file, clear_text
 from .yaml_parser import get_model_props_from_config, parse_yaml
-from .rules_applier import mangle_tokens
+from .rules_applier import mangle_tokens, create_password_templates
 from .commons import Language, Token, token_to_str
 from .text_parser import tokenize_text, merge_token_duplicates, \
     recognize_email_addresses
@@ -31,6 +31,7 @@ def guess_passwords(
     print(f"Language: {arg_language}")
     print(f"Password mangling: {'On' if mangle else 'Off'}")
     print(f"Password generation: {'On' if generate else 'Off'}")
+    print()
 
     user_config = parse_yaml(config_file)
 
@@ -50,6 +51,8 @@ def guess_passwords(
     save_tokens(tokens, "extracted_tokens.csv")
 
     print(f"Extracted {len(tokens)} tokens")
+    print()
+
     if verbose:
         for tok in sorted(tokens):
             print(token_to_str(tok))
@@ -66,9 +69,11 @@ def guess_passwords(
     # Mangling of the tokens
     if mangle:
         print("Mangling tokens...")
-        tokens = mangle_tokens(user_config, tokens, False, max_length)
+        mangling_epochs = user_config['mangling_schedule']
+        tokens = mangle_tokens(mangling_epochs, tokens, max_length)
         save_tokens(tokens, "mangled_tokens.csv")
         print(f"Mangled {len(tokens)} tokens")
+        print()
         if verbose:
             for tok in sorted(tokens):
                 print(token_to_str(tok))
@@ -76,18 +81,21 @@ def guess_passwords(
     # Generating new tokens using AI
     if generate:
         print("Generating passwords...")
-        from .model import TemplateBasedPasswordModel, tokens_to_seeds
+        from .model import TemplateBasedPasswordModel
 
-        seeds = tokens_to_seeds(base_tokens, max_length)
+        print(f"Creating password templates...")
+        templates = create_password_templates(user_config, base_tokens, max_length)
         std_dev, samples_count = get_model_props_from_config(config_file)
 
-        print(f"Number of tokens entering password generator: {len(seeds)}")
-        print(f"For every token generator will generate at most {samples_count} passwords")
+        print(f"Created {len(templates)} templates")
+        print(f"Max number of passwords generated from one template: {samples_count}")
 
         model = TemplateBasedPasswordModel(samples_count, std_dev)
-        generated_tokens = model.sample_model_based_on_templates(seeds)
+        generated_tokens = model.sample_model_based_on_templates(templates)
         save_tokens(generated_tokens, "generated_tokens.csv")
         print(f"Generated {len(generated_tokens)} tokens")
+        print()
+
         if verbose:
             for tok in sorted(generated_tokens):
                 print(token_to_str(tok))
@@ -109,7 +117,6 @@ def read_evidence(evidence_files: list[str]) -> str:
 
 def create_parser() -> ArgumentParser:
     parser = ArgumentParser(
-        prog="password_guesser",
         description="This program generates a dictionary of passwords using the provided evidence. "
         "Currently supported evidence formats are: .txt, .pdf, .docx, .odt",
     )

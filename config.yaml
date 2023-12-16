@@ -65,3 +65,22 @@ mangling_schedule:
       - nothing
     labels:
       - PERSON
+
+pre_generation_schedule:
+  - type: binary
+    rules:
+      - join
+    labels:
+      - PERSON
+      - ORG
+      - LOC
+      - DATE
+      - EMAIL
+      - WILDCARD
+
+  - type: unary
+    rules:
+      - nothing
+    labels:
+      - PERSON
+      - WILDCARD
