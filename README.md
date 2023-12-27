@@ -20,8 +20,8 @@
 
 ## Installation
 ```
-git clone https://github.com/password-generation/AI-cryptanalysis.git
-cd AI-cryptanalysis
+git clone https://github.com/password-generation/AI-password-guesser.git
+cd AI-password-guesser
 
 python3 -m venv .venv
 source .venv/bin/activate
