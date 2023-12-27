@@ -28,4 +28,4 @@ def clear_text(text: str) -> str:
     Clears the text from punctuation by replacing every character
     specified in the regrex with a space .
     """
-    return re.sub("[^A-Za-z0-9ĘęÓóĄąŚśŁłŻżŹźĆćŃń ]+", " ", text)
+    return re.sub("[^A-Za-z0-9ĘęÓóĄąŚśŁłŻżŹźĆćŃń@. ]+", " ", text)
