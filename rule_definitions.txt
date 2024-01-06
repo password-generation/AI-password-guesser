@@ -1,0 +1,57 @@
+nothing - change nothing
+lowercase - convert all letters to lowercase
+uppercase - convert all letters to uppercase
+cut_end: n - delete last n characters
+delete_at: n - delete character at position n
+toggle_case - change all lowercase characters to uppercase and all uppercase to lowercase
+capitalize - capitalize the word
+invert_capitalize - invert capitalization
+toggle_at: n - swap case of the character at position n
+reverse - reverse the word
+duplicate - duplicate the word
+reflect - concatenate the reversed copy of the word to its end
+rotate_left - move each letter 1 position left
+rotate_right - move each letter 1 position right
+cut_start: n - delete first n characters
+extract_range: n m - extract subsequence between positions n and m
+omit_range: n m - delete subsequence between positions n and m
+insert_at: n c - insert character c at position n 
+overwrite_at: n c - overwrite character c at position n
+replace: o n - replace all occurrences of string o with string n
+purge: c - delete all characters c in the word
+duplicate_first: i n - copy subsequence of the first i characters of the word n times
+duplicate_last: i n - copy subsequence of the last i characters of the word n times
+duplicate_at: i n - copy character at position i n times
+duplicate_all: n - copy every character n times
+swap_front - swap first and second characters with each other
+swap_back -  swap last two characters with each other
+swap_chars_at: i j - swap the characters at positions i and j with each other
+increment_char_ascii_at: i n - increment the character's at position i ascii code represantation by n
+decrement_char_ascii_at: i n - decrement the character's at position i ascii code represantation by n
+join - concatenate both words
+interlace - interlace both words every second letter
+gamerize: i - translate character at position i to a gamerized version according to the table:
+
+"A": "4"
+"a": "@"
+"B": "8"
+"C": "("
+"c": "("
+"E": "3"
+"e": "3"
+"G": "6"
+"g": "9"
+"H": "#"
+"h": "#"
+"I": "1"
+"i": "!"
+"O": "0"
+"o": "0"
+"S": "$"
+"s": "$"
+"T": "7"
+"t": "+"
+"U": "v"
+"u": "v"
+"Z": "2"
+"z": "2"
