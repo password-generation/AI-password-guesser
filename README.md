@@ -16,7 +16,7 @@
 - [Disclaimer about password model file](#disclaimer-about-password-model-file)
 
 ## Requirements
-- Python 3.10 or newer
+- Python 3.10 or 3.11 (<=3.9 and >=3.12 versions are not supported!)
 
 ## Installation
 ```
