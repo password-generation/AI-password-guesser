@@ -3,7 +3,8 @@ textract
 spacy
 unidecode
 python-dateutil
-tensorflow
-tensorflow_hub
+tensorflow<2.16
+tensorflow_hub<0.16.0
 numpy
 spacy_download
+
